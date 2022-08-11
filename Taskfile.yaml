@@ -1,0 +1,39 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  COMMUNITY_COMPOSE_FILE: -f docker-compose.yml
+  ENTERPRISE_COMPOSE_FILE: -f docker-compose.yml -f docker-compose.enterprise.yml
+
+tasks:
+  community:run:
+    cmds:
+      - docker-compose {{.COMMUNITY_COMPOSE_FILE}} up -d --remove-orphans
+  community:stop:
+    cmds:
+      - docker-compose {{.COMMUNITY_COMPOSE_FILE}} stop
+  community:ps:
+    cmds:
+      - docker-compose {{.COMMUNITY_COMPOSE_FILE}} ps
+  community:rm:
+    deps:
+      - community:stop
+    cmds:
+      - docker-compose {{.COMMUNITY_COMPOSE_FILE}} rm -f
+      - docker volume prune -f
+  enterprise:run:
+    cmds:
+      - docker-compose {{.ENTERPRISE_COMPOSE_FILE}} up -d --remove-orphans
+  enterprise:stop:
+    cmds:
+      - docker-compose {{.ENTERPRISE_COMPOSE_FILE}} stop
+  enterprise:ps:
+    cmds:
+      - docker-compose {{.ENTERPRISE_COMPOSE_FILE}} ps
+  enterprise:rm:
+    deps:
+      - enterprise:stop
+    cmds:
+      - docker-compose {{.ENTERPRISE_COMPOSE_FILE}} rm -f
+      - docker volume prune -f
