@@ -28,7 +28,7 @@ services:
       - "8080:8080"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.dex.rule=Host(`localhost`) && PathPrefix(`/api/auth/dex`)
+      - traefik.http.routers.dex.rule=Host(`80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io`) && PathPrefix(`/api/auth/dex`)
       - traefik.http.routers.dex.entrypoints=web
       - traefik.http.services.dex.loadbalancer.server.port=5556
       - traefik.http.middlewares.cors.headers.accesscontrolallowmethods=GET,OPTIONS,PUT,POST,DELETE,HEAD,PATCH
@@ -36,7 +36,7 @@ services:
       - traefik.http.middlewares.cors.headers.accessControlAllowHeaders=content-type
       - traefik.http.middlewares.cors.headers.accesscontrolmaxage=100
       - traefik.http.middlewares.cors.headers.addvaryheader=true
-      - traefik.http.middlewares.jwt.plugin.auth.Issuer=http://localhost/api/auth
+      - traefik.http.middlewares.jwt.plugin.auth.Issuer=http://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io/api/auth
 
   auth:
     image: "ghcr.io/formancehq/auth:20761562e41e83ce4f77e294506ec5e320da5b16"
@@ -53,32 +53,32 @@ services:
       CAOS_OIDC_DEV: 1
       DELEGATED_CLIENT_ID: gateway
       DELEGATED_CLIENT_SECRET: ZXhhbXBsZS1hcHAtc2VjcmV0
-      DELEGATED_ISSUER: http://localhost/api/auth/dex
-      BASE_URL: http://localhost/api/auth
+      DELEGATED_ISSUER: http://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io/api/auth/dex
+      BASE_URL: http://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io/api/auth
     volumes:
       - ./config/auth/config.yaml:/config.yaml
     labels:
       - traefik.enable=true
-      - traefik.http.routers.auth.rule=Host(`localhost`) && PathPrefix(`/api/auth`)
+      - traefik.http.routers.auth.rule=Host(`80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io`) && PathPrefix(`/api/auth`)
       - traefik.http.routers.auth.entrypoints=web
       - traefik.http.services.auth.loadbalancer.server.port=8080
       - traefik.http.middlewares.auth.stripprefix.prefixes=/api/auth
       - traefik.http.routers.auth.middlewares=cors@docker,auth@docker
 
   control:
-    image: "ghcr.io/formancehq/control:latest"
+    image: "ghcr.io/formancehq/control:a21a8d581b91171552f342de22ea7fe59f5a7361"
     network_mode: service:gateway
     environment:
-      API_URL: "http://localhost/api"
-      API_URL_BACK: "http://localhost/api"
-      API_URL_FRONT: "http://localhost/api"
+      API_URL: "https://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io/api"
+      API_URL_BACK: "https://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io/api"
+      API_URL_FRONT: "https://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io/api"
       CLIENT_ID: "control"
       CLIENT_SECRET: "mysupersecret"
       ENCRYPTION_KEY: "mysuperencryptionkey"
       ENCRYPTION_IV: "6f0c77c78a624022"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.control.rule=Host(`localhost`)
+      - traefik.http.routers.control.rule=Host(`80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io`)
       - traefik.http.routers.control.entrypoints=web
       - traefik.http.services.control.loadbalancer.server.port=3000
       - traefik.http.routers.control.middlewares=cors@docker
@@ -98,7 +98,7 @@ services:
       - --kafka-addr
       - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
       - --advertise-kafka-addr
-      - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+      - PLAINTEXT://redpanda:29092,OUTSIDE://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io:9092
     healthcheck:
       test: curl -s -f -k http://127.0.0.1:9644/metrics >/dev/null || exit 1
       interval: 30s
@@ -168,9 +168,11 @@ services:
       NUMARY_PUBLISHER_KAFKA_ENABLED: "true"
       NUMARY_PUBLISHER_KAFKA_BROKER: redpanda:29092
       NUMARY_PUBLISHER_TOPIC_MAPPING: "*:ledger"
+    ports:
+      - "3068:3068"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.ledger.rule=Host(`localhost`) && PathPrefix(`/api/ledger`)
+      - traefik.http.routers.ledger.rule=Host(`80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io`) && PathPrefix(`/api/ledger`)
       - traefik.http.routers.ledger.entrypoints=web
       - traefik.http.services.ledger.loadbalancer.server.port=3068
       - traefik.http.routers.ledger.middlewares=jwt@docker,ledger@docker,cors@docker
@@ -218,7 +220,7 @@ services:
       PUBLISHER_TOPIC_MAPPING: "*:payments"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.payments.rule=Host(`localhost`) &&  PathPrefix(`/api/payments`)
+      - traefik.http.routers.payments.rule=Host(`80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io`) &&  PathPrefix(`/api/payments`)
       - traefik.http.routers.payments.entrypoints=web
       - traefik.http.services.payments.loadbalancer.server.port=8080
       - traefik.http.routers.payments.middlewares=jwt@docker,payments@docker,cors@docker
@@ -284,7 +286,7 @@ services:
       ES_INDICES: "formance"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.search.rule=Host(`localhost`) &&  PathPrefix(`/api/search`)
+      - traefik.http.routers.search.rule=Host(`80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io`) &&  PathPrefix(`/api/search`)
       - traefik.http.routers.search.entrypoints=web
       - traefik.http.services.search.loadbalancer.server.port=8080
       - traefik.http.routers.search.middlewares=jwt@docker,search@docker,cors@docker
@@ -305,7 +307,7 @@ services:
       STORAGE_MONGO_CONN_STRING: "mongodb://admin:formance@mongodb:27017"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webhooks.rule=Host(`localhost`) &&  PathPrefix(`/api/webhooks`)
+      - traefik.http.routers.webhooks.rule=Host(`80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io`) &&  PathPrefix(`/api/webhooks`)
       - traefik.http.routers.webhooks.entrypoints=web
       - traefik.http.services.webhooks.loadbalancer.server.port=8080
       - traefik.http.routers.webhooks.middlewares=jwt@docker,webhooks@docker,cors@docker

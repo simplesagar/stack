@@ -1,4 +1,4 @@
-issuer: http://localhost/api/auth/dex
+issuer: http://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io/api/auth/dex
 
 storage:
   type: memory
@@ -26,8 +26,8 @@ oauth2:
 staticClients:
   - id: gateway
     redirectURIs:
-      - 'http://localhost:3000/auth/login'
-      - 'http://localhost/api/auth/authorize/callback'
+      - 'http://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io:3000/auth/login'
+      - 'http://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io/api/auth/authorize/callback'
     name: 'Auth Gateway'
     secret: ZXhhbXBsZS1hcHAtc2VjcmV0
 
@@ -61,7 +61,7 @@ connectors:
       # Credentials can be string literals or pulled from the environment.
       clientID: 47b0a0145f1879ccc5b0
       clientSecret: a52667786dfa5e2576679467711c7a97c5f3f1ae
-      redirectURI: http://localhost/api/auth/dex/callback
+      redirectURI: http://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io/api/auth/dex/callback
   - type: oidc
     id: Formance
     name: Formance
@@ -77,4 +77,4 @@ connectors:
       clientSecret: $GOOGLE_CLIENT_SECRET
 
       # Dex's issuer URL + "/callback"
-      redirectURI: http://localhost:5556/api/auth/dex/callback
+      redirectURI: http://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io:5556/api/auth/dex/callback

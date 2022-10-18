@@ -3,10 +3,10 @@ clients:
     secrets:
       - mysupersecret
     redirectUris:
-      - http://localhost:3000/auth/login
-      - http://localhost/auth/login
+      - http://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io:3000/auth/login
+      - http://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io/auth/login
       - https://oauth.pstmn.io/v1/callback
     name: control
     postLogoutRedirectUris:
-      - http://localhost:3000/auth/destroy
-      - http://localhost/auth/destroy
+      - http://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io:3000/auth/destroy
+      - http://80-formancehq-stack-b8pm8qm35s3.ws-eu71.gitpod.io/auth/destroy
