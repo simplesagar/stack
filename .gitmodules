@@ -22,3 +22,6 @@
 [submodule "services/wallets"]
 	path = services/wallets
 	url = https://github.com/formancehq/wallets
+[submodule "services/counterparties"]
+	path = services/counterparties
+	url = https://github.com/formancehq/counterparties
