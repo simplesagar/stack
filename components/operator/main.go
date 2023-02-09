@@ -159,6 +159,11 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Orchestration")
 		os.Exit(1)
 	}
+	gatewayMutator := components.NewGatewayMutator(mgr.GetClient(), mgr.GetScheme())
+	if err = controllerutils.NewReconciler(mgr.GetClient(), mgr.GetScheme(), gatewayMutator).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Gateway")
+		os.Exit(1)
+	}
 
 	if err = (&stackv1beta2.Stack{}).SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create webhook", "webhook", "Stack")

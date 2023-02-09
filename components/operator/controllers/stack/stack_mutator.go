@@ -121,6 +121,7 @@ func (r *Mutator) SetupWithBuilder(mgr ctrl.Manager, bldr *ctrl.Builder) error {
 		Owns(&componentsv1beta2.Webhooks{}).
 		Owns(&componentsv1beta2.Wallets{}).
 		Owns(&componentsv1beta2.Orchestration{}).
+		Owns(&componentsv1beta2.Gateway{}).
 		Owns(&corev1.Namespace{}).
 		Owns(&corev1.Service{}).
 		Owns(&traefik.Middleware{}).
