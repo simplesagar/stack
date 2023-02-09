@@ -18,14 +18,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// CounterpartiesSpec defines the desired state of Counterparties
-type CounterpartiesSpec struct {
+// GatewaySpec defines the desired state of Gateway
+type GatewaySpec struct {
 	pkgapisv1beta2.CommonServiceProperties `json:",inline"`
 
-	// +optional
-	Enabled bool `json:"enabled,omitempty"`
-	// +optional
-	Postgres PostgresConfigCreateDatabase `json:"postgres"`
 	// +optional
 	Monitoring *pkgapisv1beta2.MonitoringSpec `json:"monitoring"`
 }
@@ -34,36 +30,36 @@ type CounterpartiesSpec struct {
 //+kubebuilder:subresource:status
 //+kubebuilder:storageversion
 
-// Counterparties is the Schema for the Counterparties API
-type Counterparties struct {
+// Gateway is the Schema for the Gateway API
+type Gateway struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   CounterpartiesSpec    `json:"spec,omitempty"`
+	Spec   GatewaySpec           `json:"spec,omitempty"`
 	Status pkgapisv1beta2.Status `json:"status,omitempty"`
 }
 
-func (in *Counterparties) GetStatus() pkgapisv1beta2.Dirty {
+func (in *Gateway) GetStatus() pkgapisv1beta2.Dirty {
 	return &in.Status
 }
 
-func (in *Counterparties) GetConditions() *pkgapisv1beta2.Conditions {
+func (in *Gateway) GetConditions() *pkgapisv1beta2.Conditions {
 	return &in.Status.Conditions
 }
 
-func (in *Counterparties) IsDirty(t pkgapisv1beta2.Object) bool {
+func (in *Gateway) IsDirty(t pkgapisv1beta2.Object) bool {
 	return false
 }
 
 //+kubebuilder:object:root=true
 
-// CounterpartiesList contains a list of Counterparties
-type CounterpartiesList struct {
+// GatewayList contains a list of Gateway
+type GatewayList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Counterparties `json:"items"`
+	Items           []Gateway `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&Counterparties{}, &CounterpartiesList{})
+	SchemeBuilder.Register(&Gateway{}, &GatewayList{})
 }

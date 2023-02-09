@@ -39,8 +39,6 @@ spec:
                 type: string
               control:
                 type: string
-              counterparties:
-                type: string
               ledger:
                 type: string
               orchestration:

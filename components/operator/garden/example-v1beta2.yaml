@@ -158,13 +158,6 @@ spec:
         username: formance
         password: formance
         disableSSLMode: true
-    counterparties:
-      postgres:
-        host: postgres-postgresql.default.svc.cluster.local
-        port: 5432
-        username: formance
-        password: formance
-        disableSSLMode: true
 ---
 apiVersion: stack.formance.com/v1beta2
 kind: Versions

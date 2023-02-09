@@ -149,11 +149,6 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Wallets")
 		os.Exit(1)
 	}
-	counterpartiesMutator := components.NewCounterpartiesMutator(mgr.GetClient(), mgr.GetScheme())
-	if err = controllerutils.NewReconciler(mgr.GetClient(), mgr.GetScheme(), counterpartiesMutator).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Counterparties")
-		os.Exit(1)
-	}
 	serverMutator := benthos_components.NewServerMutator(mgr.GetClient(), mgr.GetScheme())
 	if err = controllerutils.NewReconciler(mgr.GetClient(), mgr.GetScheme(), serverMutator).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Server")
