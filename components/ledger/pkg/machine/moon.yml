@@ -1,0 +1,8 @@
+type: 'tool'
+language: 'go'
+
+tasks:
+  lint:
+    command: 'golangci-lint run --fix'
+    inputs:
+      - '**/*'

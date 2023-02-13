@@ -9,3 +9,8 @@ vendor
 go.work
 go.work.sum
 worktrees
+
+# moon
+.moon/cache
+.moon/docker
+build
