@@ -1,11 +1,11 @@
 type: 'application'
 language: 'go'
 project:
-  name: 'auth'
-  description: 'Auth service'
+  name: 'gateway'
+  description: 'Gateway service'
 tasks:
   build:
-    command: 'go build -o build/auth ./'
+    command: 'go build -o build/gateway ./'
     inputs:
       - '**/*'
     outputs:

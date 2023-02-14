@@ -1,8 +1,5 @@
-type: 'tool'
+type: 'library'
 language: 'go'
-
-tasks:
-  lint:
-    command: 'golangci-lint run --fix'
-    inputs:
-      - '**/*'
+project:
+  name: 'machine'
+  description: 'Machine libs for Ledger.'

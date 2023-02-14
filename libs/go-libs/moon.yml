@@ -1,0 +1,11 @@
+type: 'library'
+language: 'go'
+
+dependsOn:
+  - auth
+  - ledger
+  - orchestration
+  - payments
+  - search
+  - wallets
+  - webhooks

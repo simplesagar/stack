@@ -1,6 +1,8 @@
-type: 'tool'
+type: 'application'
 language: 'go'
-
+project:
+  name: 'payments'
+  description: 'Payments service'
 tasks:
   build:
     command: 'go build -o build/payments ./'
@@ -8,7 +10,3 @@ tasks:
       - '**/*'
     outputs:
       - 'build'
-  lint:
-    command: 'golangci-lint run --fix'
-    inputs:
-      - '**/*'

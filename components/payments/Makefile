@@ -5,7 +5,7 @@ lint:
 	golangci-lint run
 
 lint-fix:
-	golangci-lint run --fix
+	golangci-lint run --fix --allow-parallel-runners
 
 run-tests:
 	go test -race -count=1 ./...

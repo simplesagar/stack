@@ -1,6 +1,8 @@
-type: 'tool'
+type: 'application'
 language: 'go'
-
+project:
+  name: 'operator'
+  description: 'Operator is a service that manages the lifecycle of a Formance Stack.'
 dependsOn:
   - auth
   - ledger
@@ -9,6 +11,7 @@ dependsOn:
   - search
   - wallets
   - webhooks
+  - gateway
 
 tasks:
   build:
@@ -17,7 +20,3 @@ tasks:
       - '**/*'
     outputs:
       - 'build'
-  lint:
-    command: 'golangci-lint run --fix'
-    inputs:
-      - '**/*'

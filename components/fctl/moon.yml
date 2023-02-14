@@ -1,6 +1,8 @@
-type: 'tool'
+type: 'application'
 language: 'go'
-
+project:
+  name: 'fctl'
+  description: 'A CLI for interacting with the Formance Stack'
 dependsOn:
   - auth
   - ledger
@@ -17,7 +19,3 @@ tasks:
       - '**/*'
     outputs:
       - 'build'
-  lint:
-    command: 'golangci-lint run --fix'
-    inputs:
-      - '**/*'

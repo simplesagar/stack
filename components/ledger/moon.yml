@@ -1,6 +1,8 @@
-type: 'tool'
+type: 'application'
 language: 'go'
-
+project:
+  name: 'ledger'
+  description: 'Ledger is a simple, fast, and secure way to manage your finances.'
 dependsOn:
   - machine
 
@@ -11,7 +13,3 @@ tasks:
       - '**/*'
     outputs:
       - 'build'
-  lint:
-    command: 'golangci-lint run --fix'
-    inputs:
-      - '**/*'
