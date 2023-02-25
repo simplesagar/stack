@@ -47,7 +47,7 @@ func PostgresServer() (*PGServer, error) {
 
 	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
 		Repository: "postgres",
-		Tag:        "13.4-alpine",
+		Tag:        "15-alpine",
 		Env: []string{
 			"POSTGRES_USER=root",
 			"POSTGRES_PASSWORD=root",

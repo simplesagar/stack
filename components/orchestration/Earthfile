@@ -1,0 +1,37 @@
+VERSION 0.7
+
+sources:
+    FROM ../..+base-build-image
+    DO ../..+GO_PKG_CACHE
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=sdks/go
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/orchestration
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=sdks/go
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/orchestration
+
+    WORKDIR /src/components/orchestration
+
+build:
+    FROM +sources
+    DO ../..+STD_BUILD --COMPONENT=orchestration
+
+build-image:
+    FROM ../..+base-final-image
+    COPY (+build/orchestration) /bin/orchestration
+    ENTRYPOINT ["/bin/orchestration"]
+
+    DO ../..+SAVE_IMAGE --COMPONENT=orchestration
+
+tests:
+    FROM +sources
+    DO ../..+GO_BUILD_CACHE
+
+    WITH DOCKER --allow-privileged \
+        --load postgres:15-alpine=../..+postgres
+        RUN go test -v ./...
+    END
+
+lint:
+    FROM +sources
+    DO ../..+LINT

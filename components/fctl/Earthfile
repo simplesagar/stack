@@ -1,0 +1,34 @@
+VERSION 0.7
+
+sources:
+    FROM ../..+base-build-image
+    DO ../..+GO_PKG_CACHE
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=sdks/go
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/fctl/membershipclient
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/fctl
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=sdks/go
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/fctl/membershipclient
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/fctl
+
+    WORKDIR /src/components/fctl
+
+build:
+    FROM +sources
+    DO ../..+STD_BUILD --COMPONENT=fctl
+
+build-image:
+    FROM ../..+base-final-image
+    COPY (+build/fctl) /bin/fctl
+    ENTRYPOINT ["/bin/fctl"]
+
+    DO ../..+SAVE_IMAGE --COMPONENT=fctl
+
+tests:
+    FROM +sources
+    DO ../..+TESTS
+
+lint:
+    FROM +sources
+    DO ../..+LINT

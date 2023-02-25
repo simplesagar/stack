@@ -101,7 +101,9 @@ var _ = BeforeEach(func() {
 	startPayments()
 
 	// TODO: Wait search has properly configured mapping before trying to ingest any data
+	By("Start Benthos server")
 	startBenthosServer()
+	By("Benthos server started")
 
 	// Start the gateway
 	ledgerUrl, err := url.Parse(fmt.Sprintf("http://localhost:%d", ledgerPort))

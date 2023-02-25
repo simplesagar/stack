@@ -1,0 +1,30 @@
+VERSION 0.7
+
+sources:
+    FROM ../..+base-build-image
+    DO ../..+GO_PKG_CACHE
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/payments
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/payments
+
+    WORKDIR /src/components/payments
+
+build:
+    FROM +sources
+    DO ../..+STD_BUILD --COMPONENT=payments
+
+build-image:
+    FROM ../..+base-final-image
+    COPY (+build/payments) /bin/payments
+    ENTRYPOINT ["/bin/payments"]
+
+    DO ../..+SAVE_IMAGE --COMPONENT=payments
+
+tests:
+    FROM +sources
+    DO ../..+TESTS
+
+lint:
+    FROM +sources
+    DO ../..+LINT

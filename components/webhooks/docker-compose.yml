@@ -5,6 +5,7 @@ services:
   server:
     command: reflex -r '\.go' -s -- sh -c "go run . server"
     build:
+      context: .
       target: dev
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://127.0.0.1:8080/_healthcheck" ]

@@ -1,0 +1,50 @@
+VERSION 0.7
+
+sources:
+    FROM ../..+base-build-image
+    DO ../..+GO_PKG_CACHE
+    WORKDIR /src/components/operator
+    DO ../..+LOAD_SOURCE_FILE --DEPENDENCY_PATH=components/operator/Makefile
+    RUN make controller-gen
+    RUN apk add curl
+    RUN make kustomize
+    RUN make envtest
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/search
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/operator
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/search
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/operator/apis
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/operator/internal
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/operator/pkg
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/operator/hack
+    DO ../..+LOAD_SOURCE_FILE --DEPENDENCY_PATH=components/operator/main.go
+
+    WORKDIR /src/components/operator
+
+build:
+    FROM +sources
+    DO ../..+STD_BUILD --COMPONENT=operator
+
+build-image:
+    FROM ../..+base-final-image
+    COPY (+build/operator) /usr/bin/operator
+
+    USER 65532:65532
+    ENTRYPOINT ["/usr/bin/operator"]
+
+    DO ../..+SAVE_IMAGE --COMPONENT=operator
+
+tests:
+    FROM +sources
+    DO ../..+GO_BUILD_CACHE
+    # Disable proxy
+    ENV GOPROXY=
+    WITH DOCKER --allow-privileged --load postgres:15-alpine=../..+postgres
+        RUN make test
+    END
+
+lint:
+    FROM +sources
+    DO ../..+LINT
+

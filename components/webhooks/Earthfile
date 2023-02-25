@@ -1,0 +1,37 @@
+VERSION 0.7
+
+sources:
+    FROM ../..+base-build-image
+    DO ../..+GO_PKG_CACHE
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/webhooks
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/webhooks
+
+    WORKDIR /src/components/webhooks
+
+build:
+    FROM +sources
+    DO ../..+STD_BUILD --COMPONENT=webhooks
+
+build-image:
+    FROM ../..+base-final-image
+    COPY (+build/webhooks) /usr/bin/webhooks
+    ENTRYPOINT ["/usr/bin/webhooks"]
+    CMD ["server"]
+
+    DO ../..+SAVE_IMAGE --COMPONENT=webhooks
+
+tests:
+    FROM +sources
+    DO ../..+GO_BUILD_CACHE
+    WITH DOCKER --compose docker-compose.yml \
+        --service postgres \
+        --service redpanda \
+        --allow-privileged
+        RUN go test ./... -v
+    END
+
+lint:
+    FROM +sources
+    DO ../..+LINT

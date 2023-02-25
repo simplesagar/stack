@@ -1,0 +1,37 @@
+VERSION 0.7
+
+sources:
+    FROM ../..+base-build-image
+    DO ../..+GO_PKG_CACHE
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
+    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/ledger
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
+    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/ledger
+
+    WORKDIR /src/components/ledger
+
+build:
+    FROM +sources
+    DO ../..+STD_BUILD --COMPONENT=ledger --CGO_ENABLED=1
+
+build-image:
+    FROM ../..+base-final-image
+    COPY (+build/ledger) /bin/ledger
+    ENTRYPOINT ["/bin/ledger"]
+    CMD ["server", "start"]
+
+    DO ../..+SAVE_IMAGE --COMPONENT=ledger
+
+tests:
+    FROM +sources
+    DO ../..+GO_BUILD_CACHE
+    ENV CGO_ENABLED=1
+
+    WITH DOCKER --allow-privileged \
+        --load postgres:15-alpine=../..+postgres
+        RUN go test -v ./...
+    END
+
+lint:
+    FROM +sources
+    DO ../..+LINT
