@@ -2,7 +2,6 @@ VERSION 0.7
 
 sources:
     FROM ../..+base-build-image
-    DO ../..+GO_PKG_CACHE
     WORKDIR /src/components/operator
     DO ../..+LOAD_SOURCE_FILE --DEPENDENCY_PATH=components/operator/Makefile
     RUN make controller-gen
@@ -37,7 +36,6 @@ build-image:
 
 tests:
     FROM +sources
-    DO ../..+GO_BUILD_CACHE
     # Disable proxy
     ENV GOPROXY=
     WITH DOCKER --allow-privileged --load postgres:15-alpine=../..+postgres

@@ -6,8 +6,6 @@ ARG --global GOOS=linux
 ARG --global GOARCH=arm64
 ARG --global BUILD_DATE=-
 ARG --global REPOSITORY=ghcr.io
-ARG --global GOPROXY=
-ARG --global GOSUMDB=
 ARG --global DOCKER_VERSION=23.0.1
 ARG --global GOLANG_VERSION=1.20
 ARG --global NODE_VERSION=19
@@ -17,24 +15,12 @@ ARG --global OPENAPI_GENERATOR_VERSION=v6.4.0
 FROM alpine:${ALPINE_VERSION}
 WORKDIR /src
 
-GO_BUILD_CACHE:
-    COMMAND
-    CACHE /go
-
-GO_PKG_CACHE:
-    COMMAND
-    CACHE /go-cache
-
-APK_CACHE:
-    COMMAND
-    CACHE /var/cache/apk
-
 DOWNLOAD_DEPENDENCIES:
     COMMAND
     ARG DEPENDENCY_PATH
     WORKDIR /src/$DEPENDENCY_PATH
     COPY (+sources/$DEPENDENCY_PATH/go.* --SOURCE_PATH=$DEPENDENCY_PATH) .
-    ENV GOPROXY http://172.26.0.5:8080
+    ENV GOPROXY http://172.26.0.12:8080
     ENV GOSUMDB=off
     RUN go mod download -x
     WORKDIR /src
@@ -59,7 +45,6 @@ STD_BUILD:
     ARG COMPONENT
     ARG EARTHLY_GIT_HASH
     ARG CGO_ENABLED=0
-    DO +GO_BUILD_CACHE
     RUN go build -o $COMPONENT \
         -ldflags="-X github.com/formancehq/$COMPONENT/cmd.Version=${VERSION} \
         -X github.com/formancehq/$COMPONENT/cmd.BuildDate=$BUILD_DATE \
@@ -75,15 +60,16 @@ TESTS:
     COMMAND
     ARG LOCATION
     ARG CGO_ENABLED=0
-    DO +GO_BUILD_CACHE
+    ENV GOPROXY http://172.26.0.5:8080
+    ENV GOSUMDB=off
     DO +GO_STD_TEST_COMMAND
     
 LINT:
     COMMAND
     COPY +tools/golangci-lint /bin/golangci-lint
-    DO +GO_BUILD_CACHE
+    DO +LOAD_SOURCE_FILE --DEPENDENCY_PATH=.golangci.yml
     RUN go mod tidy
-    RUN golangci-lint -v run --fix
+    RUN golangci-lint -v run --fix --timeout=10m --verbose -c /src/.golangci.yml
     SAVE ARTIFACT ./* AS LOCAL ./
 
 # Share common images to avoid version drift
@@ -96,10 +82,8 @@ postgres:
 base-build-image:
     FROM docker:${DOCKER_VERSION}-dind-alpine${ALPINE_VERSION}
     RUN apk update && apk add --virtual build-dependencies gcc musl-dev jq go nodejs make bash
-    ENV GOPATH=/go
-    ENV GOCACHE=/go-cache
-    RUN mkdir ${GOPATH}
-    RUN mkdir ${GOCACHE}
+    ARG GOPROXY
+    ARG GOSUMDB
     WORKDIR /src
 
 base-final-image:
@@ -131,32 +115,20 @@ lint:
     BUILD ./$LOCATION+lint
 
 build-all:
-    BUILD +build-image --COMPONENT=auth
-    BUILD +build-image --COMPONENT=ledger
-    BUILD +build-image --COMPONENT=payments
-    BUILD +build-image --COMPONENT=wallets
-    BUILD +build-image --COMPONENT=search
-    BUILD +build-image --COMPONENT=fctl
-    BUILD +build-image --COMPONENT=operator
-    BUILD +build-image --COMPONENT=webhooks
-    BUILD +build-image --COMPONENT=gateway
-    BUILD +build-image --COMPONENT=orchestration
+    DO +LOAD_SOURCES --DEPENDENCY_PATH=components
+    FOR component IN $(ls components)
+        BUILD +build-image --COMPONENT=$component
+    END
 
 tests-all:
-    BUILD +tests --LOCATION=components/auth
-    BUILD +tests --LOCATION=components/ledger
-    BUILD +tests --LOCATION=components/payments
-    BUILD +tests --LOCATION=components/wallets
-    BUILD +tests --LOCATION=components/search
-    BUILD +tests --LOCATION=components/fctl
-    BUILD +tests --LOCATION=components/operator
-    BUILD +tests --LOCATION=components/webhooks
-    BUILD +tests --LOCATION=components/gateway
-    BUILD +tests --LOCATION=components/orchestration
     BUILD +tests --LOCATION=libs/go-libs
+    DO +LOAD_SOURCES --DEPENDENCY_PATH=components
+    FOR component IN $(ls components)
+        BUILD +tests --LOCATION=components/$component
+    END
 
 lint-all:
-    COPY . .
+    DO +LOAD_SOURCES --DEPENDENCY_PATH=components
     FOR component IN $(ls components)
         BUILD +lint --LOCATION=components/$component
     END
@@ -207,11 +179,13 @@ generate-all-sdk:
 
 tests-integrations:
     FROM +base-build-image
-    DO +GO_PKG_CACHE
-    DO +GO_BUILD_CACHE
     DO +LOAD_SOURCES --DEPENDENCY_PATH=sdks/go
     DO +LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
+    DO +LOAD_SOURCES --DEPENDENCY_PATH=libs/events
     DO +LOAD_SOURCES --DEPENDENCY_PATH=components
+    DO +LOAD_SOURCE_FILE --DEPENDENCY_PATH=go.mod
+    DO +LOAD_SOURCE_FILE --DEPENDENCY_PATH=go.sum
+    RUN go mod download -x
     DO +DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=tests/integration
     DO +LOAD_SOURCES --DEPENDENCY_PATH=tests/integration
 

@@ -11,8 +11,6 @@ redpanda:
 
 tests:
     FROM +sources
-    DO ../..+GO_BUILD_CACHE
-
     WITH DOCKER --allow-privileged \
         --load docker.redpanda.com/vectorized/redpanda:v22.3.11=+redpanda \
         --load postgres:15-alpine=../..+postgres

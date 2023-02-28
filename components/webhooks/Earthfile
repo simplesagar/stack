@@ -2,7 +2,6 @@ VERSION 0.7
 
 sources:
     FROM ../..+base-build-image
-    DO ../..+GO_PKG_CACHE
     DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
     DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/webhooks
     DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
@@ -22,12 +21,15 @@ build-image:
 
     DO ../..+SAVE_IMAGE --COMPONENT=webhooks
 
+redpanda:
+    FROM docker.redpanda.com/vectorized/redpanda:v22.2.2
+
 tests:
     FROM +sources
-    DO ../..+GO_BUILD_CACHE
     WITH DOCKER --compose docker-compose.yml \
         --service postgres \
         --service redpanda \
+        --load docker.redpanda.com/vectorized/redpanda:v22.2.2=+redpanda \
         --allow-privileged
         RUN go test ./... -v
     END

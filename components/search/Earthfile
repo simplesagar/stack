@@ -2,7 +2,6 @@ VERSION 0.7
 
 sources:
     FROM ../..+base-build-image
-    DO ../..+GO_PKG_CACHE
     DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
     DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/search
     DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
@@ -28,8 +27,6 @@ opensearch:
 
 tests:
     FROM +sources
-    DO ../..+GO_BUILD_CACHE
-
     WITH DOCKER --allow-privileged \
         --load opensearchproject/opensearch:1.2.3=+opensearch
         RUN go test -v ./...

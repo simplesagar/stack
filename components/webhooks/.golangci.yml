@@ -22,6 +22,8 @@ linters:
     - rowserrcheck
     - sqlclosecheck
     - wrapcheck
+    - exhaustive
+    - buildir
 
 run:
   timeout: 5m

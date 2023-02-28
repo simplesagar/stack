@@ -2,7 +2,6 @@ VERSION 0.7
 
 sources:
     FROM ../..+base-build-image
-    DO ../..+GO_PKG_CACHE
     DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
     DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=sdks/go
     DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/orchestration
@@ -25,8 +24,6 @@ build-image:
 
 tests:
     FROM +sources
-    DO ../..+GO_BUILD_CACHE
-
     WITH DOCKER --allow-privileged \
         --load postgres:15-alpine=../..+postgres
         RUN go test -v ./...
