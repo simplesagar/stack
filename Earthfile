@@ -63,13 +63,13 @@ TESTS:
     ENV GOPROXY http://172.26.0.5:8080
     ENV GOSUMDB=off
     DO +GO_STD_TEST_COMMAND
-    
+
 LINT:
     COMMAND
-    COPY +tools/golangci-lint /bin/golangci-lint
     DO +LOAD_SOURCE_FILE --DEPENDENCY_PATH=.golangci.yml
     RUN go mod tidy
-    RUN golangci-lint -v run --fix --timeout=10m --verbose -c /src/.golangci.yml
+    RUN --mount=type=cache,target=/root/.cache/go-build \
+        golangci-lint -v run --fix --timeout=10m --verbose -c /src/.golangci.yml
     SAVE ARTIFACT ./* AS LOCAL ./
 
 # Share common images to avoid version drift
@@ -80,22 +80,18 @@ postgres:
     FROM postgres:15-alpine
 
 base-build-image:
-    FROM docker:${DOCKER_VERSION}-dind-alpine${ALPINE_VERSION}
-    RUN apk update && apk add --virtual build-dependencies gcc musl-dev jq go nodejs make bash
+    FROM docker:23.0.1-dind-alpine3.17
+    RUN apk update && apk add --virtual build-dependencies gcc musl-dev jq go nodejs make bash curl
+    RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /bin ${GOLANGCI_LINT_VERSION}
     ARG GOPROXY
     ARG GOSUMDB
+
     WORKDIR /src
 
 base-final-image:
     RUN apk update && apk add ca-certificates curl
     ARG COMPONENT
     ENV OTEL_SERVICE_NAME $COMPONENT
-
-tools:
-    RUN apk update && apk add curl
-    WORKDIR /output
-    RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /output ${GOLANGCI_LINT_VERSION}
-    SAVE ARTIFACT ./golangci-lint
 
 sources:
     ARG --required SOURCE_PATH
@@ -128,11 +124,11 @@ tests-all:
     END
 
 lint-all:
+    BUILD +lint --LOCATION=libs/go-libs
     DO +LOAD_SOURCES --DEPENDENCY_PATH=components
     FOR component IN $(ls components)
         BUILD +lint --LOCATION=components/$component
     END
-    BUILD +lint --LOCATION=libs/go-libs
 
 sdk-generation:
     FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION}

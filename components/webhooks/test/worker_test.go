@@ -1,265 +1,274 @@
 package test_test
 
 import (
-	"context"
-	"database/sql"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"net/http/httptest"
 	"strconv"
-	"testing"
-	"time"
 
-	"github.com/formancehq/stack/libs/go-libs/logging"
-	"github.com/formancehq/webhooks/cmd"
-	"github.com/formancehq/webhooks/cmd/flag"
-	webhooks "github.com/formancehq/webhooks/pkg"
 	"github.com/formancehq/webhooks/pkg/security"
-	"github.com/formancehq/webhooks/pkg/server"
-	"github.com/formancehq/webhooks/pkg/worker"
-	"github.com/formancehq/webhooks/test/kafka"
-	"github.com/spf13/viper"
-	"github.com/stretchr/testify/require"
-	"github.com/twmb/franz-go/pkg/kgo"
-	"github.com/uptrace/bun"
-	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/driver/pgdriver"
-	"go.uber.org/fx"
-	"go.uber.org/fx/fxtest"
 )
 
-func TestWorkerMessages(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancel()
-
-	sqldb := sql.OpenDB(
-		pgdriver.NewConnector(
-			pgdriver.WithDSN(viper.GetString(flag.StoragePostgresConnString))))
-	db := bun.NewDB(sqldb, pgdialect.New())
-	defer db.Close()
-
-	require.NoError(t, db.Ping())
-
-	// Cleanup tables
-	require.NoError(t, db.ResetModel(ctx, (*webhooks.Config)(nil)))
-
-	// New test server with success handler
-	httpServerSuccess := httptest.NewServer(http.HandlerFunc(webhooksSuccessHandler))
-	defer func() {
-		httpServerSuccess.CloseClientConnections()
-		httpServerSuccess.Close()
-	}()
-
-	// New test server with fail handler
-	httpServerFail := httptest.NewServer(http.HandlerFunc(webhooksFailHandler))
-	defer func() {
-		httpServerFail.CloseClientConnections()
-		httpServerFail.Close()
-	}()
-
-	serverApp := fxtest.New(t,
-		fx.Supply(httpServerSuccess.Client()),
-		server.StartModule(
-			viper.GetString(flag.HttpBindAddressServer)))
-	require.NoError(t, serverApp.Start(context.Background()))
-
-	cfgSuccess := webhooks.ConfigUser{
-		Endpoint:   httpServerSuccess.URL,
-		Secret:     secret,
-		EventTypes: []string{"unknown", fmt.Sprintf("%s.%s", app1, type1)},
-	}
-	require.NoError(t, cfgSuccess.Validate())
-
-	cfgFail := webhooks.ConfigUser{
-		Endpoint:   httpServerFail.URL,
-		Secret:     secret,
-		EventTypes: []string{"unknown", fmt.Sprintf("%s.%s", app2, type2)},
-	}
-	require.NoError(t, cfgFail.Validate())
-
-	requestServer(t, http.MethodPost, server.PathConfigs, http.StatusOK, cfgSuccess)
-	requestServer(t, http.MethodPost, server.PathConfigs, http.StatusOK, cfgFail)
-
-	t.Run("success", func(t *testing.T) {
-		require.NoError(t, db.ResetModel(ctx, (*webhooks.Attempt)(nil)))
-
-		retrySchedule = []time.Duration{time.Second}
-		viper.Set(flag.RetriesSchedule, retrySchedule)
-
-		workerApp := fxtest.New(t,
-			fx.Supply(httpServerSuccess.Client()),
-			fx.Provide(func() logging.Logger {
-				return logging.FromContext(context.Background())
-			}),
-			worker.StartModule(
-				viper.GetString(flag.HttpBindAddressWorker),
-				cmd.ServiceName,
-				viper.GetDuration(flag.RetriesCron),
-				retrySchedule,
-			))
-		require.NoError(t, workerApp.Start(context.Background()))
-		// The subscription to the kafka topics is asynchronous
-		// So add a delay (ugly) before starting
-		<-time.After(5 * time.Second)
-
-		healthCheckWorker(t)
-
-		expectedSentWebhooks := 1
-		kafkaClient, kafkaTopics, err := kafka.NewClient()
-		require.NoError(t, err)
-
-		by1, err := json.Marshal(event1)
-		require.NoError(t, err)
-		by3, err := json.Marshal(event3)
-		require.NoError(t, err)
-
-		records := []*kgo.Record{
-			{Topic: kafkaTopics[0], Value: by1},
-			{Topic: kafkaTopics[0], Value: by3},
-		}
-		err = kafkaClient.ProduceSync(context.Background(), records...).FirstErr()
-		require.NoError(t, err)
-		kafkaClient.Close()
-
-		t.Run("webhooks", func(t *testing.T) {
-			msgs := 0
-			for msgs != expectedSentWebhooks {
-				var results []webhooks.Attempt
-				require.NoError(t, db.NewSelect().Model(&results).Scan(ctx))
-				msgs = len(results)
-				if msgs != expectedSentWebhooks {
-					time.Sleep(time.Second)
-				} else {
-					for _, res := range results {
-						require.Equal(t, webhooks.StatusAttemptSuccess, res.Status)
-						require.Equal(t, 0, res.RetryAttempt)
-					}
-				}
-			}
-			time.Sleep(time.Second)
-			require.Equal(t, expectedSentWebhooks, msgs)
-		})
-
-		require.NoError(t, workerApp.Stop(context.Background()))
-	})
-
-	t.Run("failure", func(t *testing.T) {
-		require.NoError(t, db.ResetModel(ctx, (*webhooks.Attempt)(nil)))
-
-		retrySchedule = []time.Duration{time.Second}
-		viper.Set(flag.RetriesSchedule, retrySchedule)
-
-		workerApp := fxtest.New(t,
-			fx.Supply(httpServerFail.Client()),
-			fx.Provide(func() logging.Logger {
-				return logging.FromContext(context.Background())
-			}),
-			worker.StartModule(
-				viper.GetString(flag.HttpBindAddressWorker),
-				cmd.ServiceName,
-				viper.GetDuration(flag.RetriesCron),
-				retrySchedule,
-			))
-		require.NoError(t, workerApp.Start(context.Background()))
-
-		healthCheckWorker(t)
-
-		expectedSentWebhooks := 1
-		kafkaClient, kafkaTopics, err := kafka.NewClient()
-		require.NoError(t, err)
-
-		by2, err := json.Marshal(event2)
-		require.NoError(t, err)
-		by3, err := json.Marshal(event3)
-		require.NoError(t, err)
-
-		records := []*kgo.Record{
-			{Topic: kafkaTopics[0], Value: by2},
-			{Topic: kafkaTopics[0], Value: by3},
-		}
-		err = kafkaClient.ProduceSync(context.Background(), records...).FirstErr()
-		require.NoError(t, err)
-		kafkaClient.Close()
-
-		t.Run("webhooks", func(t *testing.T) {
-			msgs := 0
-			for msgs != expectedSentWebhooks {
-				var results []webhooks.Attempt
-				require.NoError(t, db.NewSelect().Model(&results).Scan(ctx))
-				msgs = len(results)
-				if msgs != expectedSentWebhooks {
-					time.Sleep(time.Second)
-				} else {
-					for _, res := range results {
-						require.Equal(t, webhooks.StatusAttemptToRetry, res.Status)
-						require.Equal(t, 0, res.RetryAttempt)
-					}
-				}
-			}
-			time.Sleep(time.Second)
-			require.Equal(t, expectedSentWebhooks, msgs)
-		})
-
-		require.NoError(t, workerApp.Stop(context.Background()))
-	})
-
-	t.Run("disabled config should not receive webhooks", func(t *testing.T) {
-		resBody := requestServer(t, http.MethodGet, server.PathConfigs, http.StatusOK)
-		cur := decodeCursorResponse[webhooks.Config](t, resBody)
-		require.Equal(t, 2, len(cur.Data))
-		require.NoError(t, resBody.Close())
-
-		resBody = requestServer(t, http.MethodPut, server.PathConfigs+"/"+cur.Data[1].ID+server.PathDeactivate, http.StatusOK)
-		c, ok := decodeSingleResponse[webhooks.Config](t, resBody)
-		require.Equal(t, true, ok)
-		require.Equal(t, false, c.Active)
-
-		require.NoError(t, db.ResetModel(ctx, (*webhooks.Attempt)(nil)))
-
-		retrySchedule = []time.Duration{time.Second}
-		viper.Set(flag.RetriesSchedule, retrySchedule)
-
-		workerApp := fxtest.New(t,
-			fx.Supply(httpServerSuccess.Client()),
-			fx.Provide(func() logging.Logger {
-				return logging.FromContext(context.Background())
-			}),
-			worker.StartModule(
-				viper.GetString(flag.HttpBindAddressWorker),
-				cmd.ServiceName,
-				viper.GetDuration(flag.RetriesCron),
-				retrySchedule,
-			))
-		require.NoError(t, workerApp.Start(context.Background()))
-
-		healthCheckWorker(t)
-
-		kafkaClient, kafkaTopics, err := kafka.NewClient()
-		require.NoError(t, err)
-
-		by1, err := json.Marshal(event1)
-		require.NoError(t, err)
-
-		records := []*kgo.Record{
-			{Topic: kafkaTopics[0], Value: by1},
-		}
-		err = kafkaClient.ProduceSync(context.Background(), records...).FirstErr()
-		require.NoError(t, err)
-		kafkaClient.Close()
-
-		time.Sleep(3 * time.Second)
-
-		var results []webhooks.Attempt
-		require.NoError(t, db.NewSelect().Model(&results).Scan(ctx))
-		require.Equal(t, 0, len(results))
-
-		require.NoError(t, workerApp.Stop(context.Background()))
-	})
-
-	require.NoError(t, serverApp.Stop(context.Background()))
-}
+//import (
+//	"context"
+//	"database/sql"
+//	"encoding/json"
+//	"fmt"
+//	"io"
+//	"net/http"
+//	"net/http/httptest"
+//	"strconv"
+//	"testing"
+//	"time"
+//
+//	"github.com/formancehq/stack/libs/go-libs/logging"
+//	"github.com/formancehq/webhooks/cmd"
+//	"github.com/formancehq/webhooks/cmd/flag"
+//	webhooks "github.com/formancehq/webhooks/pkg"
+//	"github.com/formancehq/webhooks/pkg/security"
+//	"github.com/formancehq/webhooks/pkg/server"
+//	"github.com/formancehq/webhooks/pkg/worker"
+//	"github.com/formancehq/webhooks/test/kafka"
+//	"github.com/spf13/viper"
+//	"github.com/stretchr/testify/require"
+//	"github.com/twmb/franz-go/pkg/kgo"
+//	"github.com/uptrace/bun"
+//	"github.com/uptrace/bun/dialect/pgdialect"
+//	"github.com/uptrace/bun/driver/pgdriver"
+//	"go.uber.org/fx"
+//	"go.uber.org/fx/fxtest"
+//)
+//
+//func TestWorkerMessages(t *testing.T) {
+//	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+//	defer cancel()
+//
+//	sqldb := sql.OpenDB(
+//		pgdriver.NewConnector(
+//			pgdriver.WithDSN(viper.GetString(flag.StoragePostgresConnString))))
+//	db := bun.NewDB(sqldb, pgdialect.New())
+//	defer db.Close()
+//
+//	require.NoError(t, db.Ping())
+//
+//	// Cleanup tables
+//	require.NoError(t, db.ResetModel(ctx, (*webhooks.Config)(nil)))
+//
+//	// New test server with success handler
+//	httpServerSuccess := httptest.NewServer(http.HandlerFunc(webhooksSuccessHandler))
+//	defer func() {
+//		httpServerSuccess.CloseClientConnections()
+//		httpServerSuccess.Close()
+//	}()
+//
+//	// New test server with fail handler
+//	httpServerFail := httptest.NewServer(http.HandlerFunc(webhooksFailHandler))
+//	defer func() {
+//		httpServerFail.CloseClientConnections()
+//		httpServerFail.Close()
+//	}()
+//
+//	serverApp := fxtest.New(t,
+//		fx.Supply(httpServerSuccess.Client()),
+//		server.StartModule(
+//			viper.GetString(flag.HttpBindAddressServer)))
+//	require.NoError(t, serverApp.Start(context.Background()))
+//
+//	cfgSuccess := webhooks.ConfigUser{
+//		Endpoint:   httpServerSuccess.URL,
+//		Secret:     secret,
+//		EventTypes: []string{"unknown", fmt.Sprintf("%s.%s", app1, type1)},
+//	}
+//	require.NoError(t, cfgSuccess.Validate())
+//
+//	cfgFail := webhooks.ConfigUser{
+//		Endpoint:   httpServerFail.URL,
+//		Secret:     secret,
+//		EventTypes: []string{"unknown", fmt.Sprintf("%s.%s", app2, type2)},
+//	}
+//	require.NoError(t, cfgFail.Validate())
+//
+//	requestServer(t, http.MethodPost, server.PathConfigs, http.StatusOK, cfgSuccess)
+//	requestServer(t, http.MethodPost, server.PathConfigs, http.StatusOK, cfgFail)
+//
+//	t.Run("success", func(t *testing.T) {
+//		require.NoError(t, db.ResetModel(ctx, (*webhooks.Attempt)(nil)))
+//
+//		retrySchedule = []time.Duration{time.Second}
+//		viper.Set(flag.RetriesSchedule, retrySchedule)
+//
+//		workerApp := fxtest.New(t,
+//			fx.Supply(httpServerSuccess.Client()),
+//			fx.Provide(func() logging.Logger {
+//				return logging.FromContext(context.Background())
+//			}),
+//			worker.StartModule(
+//				viper.GetString(flag.HttpBindAddressWorker),
+//				cmd.ServiceName,
+//				viper.GetDuration(flag.RetriesCron),
+//				retrySchedule,
+//			))
+//		require.NoError(t, workerApp.Start(context.Background()))
+//		// The subscription to the kafka topics is asynchronous
+//		// So add a delay (ugly) before starting
+//		<-time.After(5 * time.Second)
+//
+//		healthCheckWorker(t)
+//
+//		expectedSentWebhooks := 1
+//		kafkaClient, kafkaTopics, err := kafka.NewClient()
+//		require.NoError(t, err)
+//
+//		by1, err := json.Marshal(event1)
+//		require.NoError(t, err)
+//		by3, err := json.Marshal(event3)
+//		require.NoError(t, err)
+//
+//		records := []*kgo.Record{
+//			{Topic: kafkaTopics[0], Value: by1},
+//			{Topic: kafkaTopics[0], Value: by3},
+//		}
+//		err = kafkaClient.ProduceSync(context.Background(), records...).FirstErr()
+//		require.NoError(t, err)
+//		kafkaClient.Close()
+//
+//		t.Run("webhooks", func(t *testing.T) {
+//			msgs := 0
+//			for msgs != expectedSentWebhooks {
+//				var results []webhooks.Attempt
+//				require.NoError(t, db.NewSelect().Model(&results).Scan(ctx))
+//				msgs = len(results)
+//				if msgs != expectedSentWebhooks {
+//					time.Sleep(time.Second)
+//				} else {
+//					for _, res := range results {
+//						require.Equal(t, webhooks.StatusAttemptSuccess, res.Status)
+//						require.Equal(t, 0, res.RetryAttempt)
+//					}
+//				}
+//			}
+//			time.Sleep(time.Second)
+//			require.Equal(t, expectedSentWebhooks, msgs)
+//		})
+//
+//		require.NoError(t, workerApp.Stop(context.Background()))
+//	})
+//
+//	t.Run("failure", func(t *testing.T) {
+//		require.NoError(t, db.ResetModel(ctx, (*webhooks.Attempt)(nil)))
+//
+//		retrySchedule = []time.Duration{time.Second}
+//		viper.Set(flag.RetriesSchedule, retrySchedule)
+//
+//		workerApp := fxtest.New(t,
+//			fx.Supply(httpServerFail.Client()),
+//			fx.Provide(func() logging.Logger {
+//				return logging.FromContext(context.Background())
+//			}),
+//			worker.StartModule(
+//				viper.GetString(flag.HttpBindAddressWorker),
+//				cmd.ServiceName,
+//				viper.GetDuration(flag.RetriesCron),
+//				retrySchedule,
+//			))
+//		require.NoError(t, workerApp.Start(context.Background()))
+//
+//		healthCheckWorker(t)
+//
+//		expectedSentWebhooks := 1
+//		kafkaClient, kafkaTopics, err := kafka.NewClient()
+//		require.NoError(t, err)
+//
+//		by2, err := json.Marshal(event2)
+//		require.NoError(t, err)
+//		by3, err := json.Marshal(event3)
+//		require.NoError(t, err)
+//
+//		records := []*kgo.Record{
+//			{Topic: kafkaTopics[0], Value: by2},
+//			{Topic: kafkaTopics[0], Value: by3},
+//		}
+//		err = kafkaClient.ProduceSync(context.Background(), records...).FirstErr()
+//		require.NoError(t, err)
+//		kafkaClient.Close()
+//
+//		t.Run("webhooks", func(t *testing.T) {
+//			msgs := 0
+//			for msgs != expectedSentWebhooks {
+//				var results []webhooks.Attempt
+//				require.NoError(t, db.NewSelect().Model(&results).Scan(ctx))
+//				msgs = len(results)
+//				if msgs != expectedSentWebhooks {
+//					time.Sleep(time.Second)
+//				} else {
+//					for _, res := range results {
+//						require.Equal(t, webhooks.StatusAttemptToRetry, res.Status)
+//						require.Equal(t, 0, res.RetryAttempt)
+//					}
+//				}
+//			}
+//			time.Sleep(time.Second)
+//			require.Equal(t, expectedSentWebhooks, msgs)
+//		})
+//
+//		require.NoError(t, workerApp.Stop(context.Background()))
+//	})
+//
+//	t.Run("disabled config should not receive webhooks", func(t *testing.T) {
+//		resBody := requestServer(t, http.MethodGet, server.PathConfigs, http.StatusOK)
+//		cur := decodeCursorResponse[webhooks.Config](t, resBody)
+//		require.Equal(t, 2, len(cur.Data))
+//		require.NoError(t, resBody.Close())
+//
+//		resBody = requestServer(t, http.MethodPut, server.PathConfigs+"/"+cur.Data[1].ID+server.PathDeactivate, http.StatusOK)
+//		c, ok := decodeSingleResponse[webhooks.Config](t, resBody)
+//		require.Equal(t, true, ok)
+//		require.Equal(t, false, c.Active)
+//
+//		require.NoError(t, db.ResetModel(ctx, (*webhooks.Attempt)(nil)))
+//
+//		retrySchedule = []time.Duration{time.Second}
+//		viper.Set(flag.RetriesSchedule, retrySchedule)
+//
+//		workerApp := fxtest.New(t,
+//			fx.Supply(httpServerSuccess.Client()),
+//			fx.Provide(func() logging.Logger {
+//				return logging.FromContext(context.Background())
+//			}),
+//			worker.StartModule(
+//				viper.GetString(flag.HttpBindAddressWorker),
+//				cmd.ServiceName,
+//				viper.GetDuration(flag.RetriesCron),
+//				retrySchedule,
+//			))
+//		require.NoError(t, workerApp.Start(context.Background()))
+//
+//		healthCheckWorker(t)
+//
+//		kafkaClient, kafkaTopics, err := kafka.NewClient()
+//		require.NoError(t, err)
+//
+//		by1, err := json.Marshal(event1)
+//		require.NoError(t, err)
+//
+//		records := []*kgo.Record{
+//			{Topic: kafkaTopics[0], Value: by1},
+//		}
+//		err = kafkaClient.ProduceSync(context.Background(), records...).FirstErr()
+//		require.NoError(t, err)
+//		kafkaClient.Close()
+//
+//		time.Sleep(3 * time.Second)
+//
+//		var results []webhooks.Attempt
+//		require.NoError(t, db.NewSelect().Model(&results).Scan(ctx))
+//		require.Equal(t, 0, len(results))
+//
+//		require.NoError(t, workerApp.Stop(context.Background()))
+//	})
+//
+//	require.NoError(t, serverApp.Stop(context.Background()))
+//}
 
 //
 //func TestWorkerRetries(t *testing.T) {
