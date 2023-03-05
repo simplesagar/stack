@@ -3,27 +3,22 @@ VERSION 0.7
 sources:
     FROM ../..+base-build-image
     WORKDIR /src/components/operator
-    DO ../..+LOAD_SOURCE_FILE --DEPENDENCY_PATH=components/operator/Makefile
+    DO ../..+LOAD_SOURCE_FILE --LOCATION=components/operator/Makefile
     RUN make controller-gen
-    RUN apk add curl
     RUN make kustomize
     RUN make envtest
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/search
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/operator
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/search
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/operator/apis
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/operator/internal
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/operator/pkg
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/operator/hack
-    DO ../..+LOAD_SOURCE_FILE --DEPENDENCY_PATH=components/operator/main.go
-
-    WORKDIR /src/components/operator
+    DO ../..+LOAD_SOURCES --LOCATION=libs/go-libs
+    DO ../..+LOAD_SOURCES --LOCATION=components/search
+    DO ../..+DOWNLOAD_DEPENDENCIES --LOCATION=components/operator
+    DO ../..+LOAD_SOURCES --LOCATION=components/operator
 
 build:
     FROM +sources
-    DO ../..+STD_BUILD --COMPONENT=operator
+    RUN make manifests
+    RUN make generate
+    SAVE ARTIFACT ./config AS LOCAL ./config
+    SAVE ARTIFACT ./apis AS LOCAL ./apis
+    DO ../..+GO_STD_BUILD --COMPONENT=operator
 
 build-image:
     FROM ../..+base-final-image
@@ -39,10 +34,5 @@ tests:
     # Disable proxy
     ENV GOPROXY=
     WITH DOCKER --allow-privileged --load postgres:15-alpine=../..+postgres
-        RUN make test
+        RUN --mount=type=cache,target=/root/.cache/go-build make test
     END
-
-lint:
-    FROM +sources
-    DO ../..+LINT
-

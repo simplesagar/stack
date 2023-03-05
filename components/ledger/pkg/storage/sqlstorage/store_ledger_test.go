@@ -2,15 +2,12 @@ package sqlstorage_test
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"testing"
 	"time"
 
-	"github.com/formancehq/ledger/internal/pgtesting"
 	"github.com/formancehq/ledger/pkg/api/idempotency"
 	"github.com/formancehq/ledger/pkg/core"
 	"github.com/formancehq/ledger/pkg/ledger"
@@ -40,7 +37,6 @@ func TestStore(t *testing.T) {
 		{name: "GetAccounts", fn: testGetAccounts},
 		{name: "Transactions", fn: testTransactions},
 		{name: "GetTransaction", fn: testGetTransaction},
-		{name: "TooManyClient", fn: testTooManyClient},
 		{name: "GetBalances", fn: testGetBalances},
 		{name: "GetBalancesAggregated", fn: testGetBalancesAggregated},
 		{name: "CreateIK", fn: testIKS},
@@ -671,26 +667,6 @@ func testGetTransaction(t *testing.T, store *sqlstorage.Store) {
 	require.Equal(t, tx1.Postings, tx.Postings)
 	require.Equal(t, tx1.Reference, tx.Reference)
 	require.Equal(t, tx1.Timestamp, tx.Timestamp)
-}
-
-func testTooManyClient(t *testing.T, store *sqlstorage.Store) {
-	// Use of external server, ignore this test
-	if os.Getenv("STORAGE_POSTGRES_CONN_STRING") != "" {
-		return
-	}
-
-	for i := 0; i < pgtesting.MaxConnections; i++ {
-		tx, err := store.Schema().BeginTx(context.Background(), nil)
-		require.NoError(t, err)
-		defer func(tx *sql.Tx) {
-			require.NoError(t, tx.Rollback())
-		}(tx)
-	}
-
-	_, err := store.CountTransactions(context.Background(), ledger.TransactionsQuery{})
-	require.Error(t, err)
-	require.IsType(t, new(storage.Error), err)
-	require.Equal(t, storage.TooManyClient, err.(*storage.Error).Code)
 }
 
 func TestInitializeStore(t *testing.T) {

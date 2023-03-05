@@ -2,16 +2,15 @@ VERSION 0.7
 
 sources:
     FROM ../..+base-build-image
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/payments
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/payments
+    DO ../..+LOAD_SOURCES --LOCATION=libs/go-libs
+    DO ../..+DOWNLOAD_DEPENDENCIES --LOCATION=components/payments
+    DO ../..+LOAD_SOURCES --LOCATION=components/payments
 
     WORKDIR /src/components/payments
 
 build:
     FROM +sources
-    DO ../..+STD_BUILD --COMPONENT=payments
+    DO ../..+GO_STD_BUILD --COMPONENT=payments
 
 build-image:
     FROM ../..+base-final-image
@@ -22,8 +21,4 @@ build-image:
 
 tests:
     FROM +sources
-    DO ../..+TESTS
-
-lint:
-    FROM +sources
-    DO ../..+LINT
+    DO ../..+GO_STD_TEST_COMMAND

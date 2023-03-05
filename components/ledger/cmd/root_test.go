@@ -32,15 +32,6 @@ func TestServer(t *testing.T) {
 
 	for _, tc := range []testCase{
 		{
-			name: "default",
-			env: []env{
-				{
-					key:   "STORAGE_DRIVER",
-					value: "sqlite",
-				},
-			},
-		},
-		{
 			name: "pg",
 			args: []string{"--storage.postgres.conn_string", db.ConnString()},
 		},

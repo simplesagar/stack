@@ -2,34 +2,27 @@ VERSION 0.7
 
 sources:
     FROM ../..+base-build-image
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/ledger
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/ledger
+    DO ../..+LOAD_SOURCES --LOCATION=libs/go-libs
+    DO ../..+DOWNLOAD_DEPENDENCIES --LOCATION=components/ledger
+    DO ../..+LOAD_SOURCES --LOCATION=components/ledger
 
     WORKDIR /src/components/ledger
 
 build:
     FROM +sources
-    DO ../..+STD_BUILD --COMPONENT=ledger --CGO_ENABLED=1
+    DO ../..+GO_STD_BUILD --COMPONENT=ledger --CGO_ENABLED=1
 
 build-image:
     FROM ../..+base-final-image
     COPY (+build/ledger) /bin/ledger
     ENTRYPOINT ["/bin/ledger"]
-    CMD ["server", "start"]
+    CMD ["serve"]
 
     DO ../..+SAVE_IMAGE --COMPONENT=ledger
 
 tests:
     FROM +sources
-    ENV CGO_ENABLED=1
-
-    WITH DOCKER --allow-privileged \
-        --load postgres:15-alpine=../..+postgres
-        RUN go test -v ./...
+    WITH DOCKER --allow-privileged --compose docker-compose.yml --service postgres \
+        --load postgres:15-alpine=+postgres
+        DO ../..+GO_STD_TEST_COMMAND
     END
-
-lint:
-    FROM +sources
-    DO ../..+LINT

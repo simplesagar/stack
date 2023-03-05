@@ -2,20 +2,17 @@ VERSION 0.7
 
 sources:
     FROM ../..+base-build-image
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=sdks/go
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/fctl/membershipclient
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/fctl
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=sdks/go
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/fctl/membershipclient
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/fctl
+    DO ../..+LOAD_SOURCES --LOCATION=libs/go-libs
+    DO ../..+LOAD_SOURCES --LOCATION=sdks/go
+    DO ../..+LOAD_SOURCES --LOCATION=components/fctl/membershipclient
+    DO ../..+DOWNLOAD_DEPENDENCIES --LOCATION=components/fctl
+    DO ../..+LOAD_SOURCES --LOCATION=components/fctl
 
     WORKDIR /src/components/fctl
 
 build:
     FROM +sources
-    DO ../..+STD_BUILD --COMPONENT=fctl
+    DO ../..+GO_STD_BUILD --COMPONENT=fctl
 
 build-image:
     FROM ../..+base-final-image
@@ -26,8 +23,4 @@ build-image:
 
 tests:
     FROM +sources
-    DO ../..+TESTS
-
-lint:
-    FROM +sources
-    DO ../..+LINT
+    DO ../..+GO_STD_TEST_COMMAND

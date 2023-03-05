@@ -2,38 +2,31 @@ VERSION 0.7
 
 sources:
     FROM ../..+base-build-image
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/webhooks
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/webhooks
+    DO ../..+LOAD_SOURCES --LOCATION=libs/go-libs
+    DO ../..+DOWNLOAD_DEPENDENCIES --LOCATION=components/webhooks
+    DO ../..+LOAD_SOURCES --LOCATION=components/webhooks
 
     WORKDIR /src/components/webhooks
 
 build:
     FROM +sources
-    DO ../..+STD_BUILD --COMPONENT=webhooks
+    DO ../..+GO_STD_BUILD --COMPONENT=webhooks
 
 build-image:
     FROM ../..+base-final-image
     COPY (+build/webhooks) /usr/bin/webhooks
     ENTRYPOINT ["/usr/bin/webhooks"]
-    CMD ["server"]
+    CMD ["serve"]
 
     DO ../..+SAVE_IMAGE --COMPONENT=webhooks
-
-redpanda:
-    FROM docker.redpanda.com/vectorized/redpanda:v22.2.2
 
 tests:
     FROM +sources
     WITH DOCKER --compose docker-compose.yml \
         --service postgres \
         --service redpanda \
+        --load postgres:15-alpine=+postgres \
         --load docker.redpanda.com/vectorized/redpanda:v22.2.2=+redpanda \
         --allow-privileged
-        RUN go test ./... -v
+        DO ../..+GO_STD_TEST_COMMAND
     END
-
-lint:
-    FROM +sources
-    DO ../..+LINT

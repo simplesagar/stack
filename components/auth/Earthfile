@@ -2,16 +2,15 @@ VERSION 0.7
 
 sources:
     FROM ../..+base-build-image
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/auth
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/auth
+    DO ../..+LOAD_SOURCES --LOCATION=libs/go-libs
+    DO ../..+DOWNLOAD_DEPENDENCIES --LOCATION=components/auth
+    DO ../..+LOAD_SOURCES --LOCATION=components/auth
 
     WORKDIR /src/components/auth
 
 build:
     FROM +sources
-    DO ../..+STD_BUILD --COMPONENT=auth
+    DO ../..+GO_STD_BUILD --COMPONENT=auth
 
 build-image:
     FROM ../..+base-final-image
@@ -22,8 +21,7 @@ build-image:
 
 tests:
     FROM +sources
-    DO ../..+TESTS --CGO_ENABLED=1
-
-lint:
-    FROM +sources
-    DO ../..+LINT
+    WITH DOCKER --allow-privileged \
+        --load postgres:15-alpine=+postgres
+        DO ../..+GO_STD_TEST_COMMAND
+    END

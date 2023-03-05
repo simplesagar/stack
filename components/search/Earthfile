@@ -2,16 +2,15 @@ VERSION 0.7
 
 sources:
     FROM ../..+base-build-image
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=components/search
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
-    DO ../..+LOAD_SOURCES --DEPENDENCY_PATH=components/search
+    DO ../..+LOAD_SOURCES --LOCATION=libs/go-libs
+    DO ../..+DOWNLOAD_DEPENDENCIES --LOCATION=components/search
+    DO ../..+LOAD_SOURCES --LOCATION=components/search
 
     WORKDIR /src/components/search
 
 build:
     FROM +sources
-    DO ../..+STD_BUILD --COMPONENT=search
+    DO ../..+GO_STD_BUILD --COMPONENT=search
 
 build-image:
     FROM ../..+base-final-image
@@ -22,16 +21,9 @@ build-image:
 
     WORKDIR /src/components/search
 
-opensearch:
-    FROM opensearchproject/opensearch:1.2.3
-
 tests:
     FROM +sources
     WITH DOCKER --allow-privileged \
-        --load opensearchproject/opensearch:1.2.3=+opensearch
-        RUN go test -v ./...
+        --load opensearchproject/opensearch:2.2.1=+opensearch
+        DO ../..+GO_STD_TEST_COMMAND
     END
-
-lint:
-    FROM +sources
-    DO ../..+LINT

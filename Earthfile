@@ -17,60 +17,47 @@ WORKDIR /src
 
 DOWNLOAD_DEPENDENCIES:
     COMMAND
-    ARG DEPENDENCY_PATH
-    WORKDIR /src/$DEPENDENCY_PATH
-    COPY (+sources/$DEPENDENCY_PATH/go.* --SOURCE_PATH=$DEPENDENCY_PATH) .
-    ENV GOPROXY http://172.26.0.12:8080
-    ENV GOSUMDB=off
-    RUN go mod download -x
-    WORKDIR /src
+    ARG LOCATION
+    ENV ACTUAL_LOCATION=$(pwd)
+    WORKDIR /src/$LOCATION
+    COPY (+sources/$LOCATION/go.* --SOURCE_PATH=$LOCATION) .
+    RUN go mod download
+    WORKDIR $ACTUAL_LOCATION
 
 LOAD_SOURCES:
     COMMAND
-    ARG DEPENDENCY_PATH
-    COPY (+sources/$DEPENDENCY_PATH/ --SOURCE_PATH=$DEPENDENCY_PATH) /src/$DEPENDENCY_PATH/
+    ARG LOCATION
+    COPY (+sources/$LOCATION/ --SOURCE_PATH=$LOCATION) /src/$LOCATION/
 
 LOAD_SOURCE_FILE:
     COMMAND
-    ARG DEPENDENCY_PATH
-    COPY (+sources/$DEPENDENCY_PATH --SOURCE_PATH=$DEPENDENCY_PATH) /src/$DEPENDENCY_PATH
+    ARG LOCATION
+    COPY (+sources/$LOCATION --SOURCE_PATH=$LOCATION) /src/$LOCATION
 
 SAVE_IMAGE:
     COMMAND
     ARG COMPONENT
     SAVE IMAGE ${REPOSITORY}/formancehq/${COMPONENT}:${VERSION}
 
-STD_BUILD:
+GO_STD_BUILD:
     COMMAND
-    ARG COMPONENT
+    ARG --required COMPONENT
+    ARG GOOS=
+    ARG GOARCH=
+    ARG SEGMENT_WRITE_KEY=
     ARG EARTHLY_GIT_HASH
-    ARG CGO_ENABLED=0
-    RUN go build -o $COMPONENT \
+    RUN GOOS=$GOOS GOARCH=$GOARCH go build -o $COMPONENT \
         -ldflags="-X github.com/formancehq/$COMPONENT/cmd.Version=${VERSION} \
         -X github.com/formancehq/$COMPONENT/cmd.BuildDate=$BUILD_DATE \
-        -X github.com/formancehq/$COMPONENT/cmd.Commit=$EARTHLY_GIT_HASH" ./
+        -X github.com/formancehq/$COMPONENT/cmd.Commit=$EARTHLY_GIT_HASH \
+        -X github.com/formancehq/$COMPONENT/cmd.DefaultSegmentWriteKey=$SEGMENT_WRITE_KEY" ./
     SAVE ARTIFACT ./$COMPONENT
 
 GO_STD_TEST_COMMAND:
     COMMAND
-    RUN go test -coverpkg ./... -coverprofile coverage.out -covermode atomic ./...
-    SAVE ARTIFACT ./coverage.out AS LOCAL ./coverage.out
-
-TESTS:
-    COMMAND
-    ARG LOCATION
-    ARG CGO_ENABLED=0
-    ENV GOPROXY http://172.26.0.5:8080
-    ENV GOSUMDB=off
-    DO +GO_STD_TEST_COMMAND
-
-LINT:
-    COMMAND
-    DO +LOAD_SOURCE_FILE --DEPENDENCY_PATH=.golangci.yml
-    RUN go mod tidy
     RUN --mount=type=cache,target=/root/.cache/go-build \
-        golangci-lint -v run --fix --timeout=10m --verbose -c /src/.golangci.yml
-    SAVE ARTIFACT ./* AS LOCAL ./
+        go test -coverpkg ./... -coverprofile coverage.out -covermode atomic ./...
+    SAVE ARTIFACT ./coverage.out AS LOCAL ./coverage.out
 
 # Share common images to avoid version drift
 benthos:
@@ -79,12 +66,22 @@ benthos:
 postgres:
     FROM postgres:15-alpine
 
+opensearch:
+    FROM opensearchproject/opensearch:2.2.1
+
+redpanda:
+    FROM docker.redpanda.com/vectorized/redpanda:v22.2.2
+
+nats:
+    FROM nats
+
 base-build-image:
     FROM docker:23.0.1-dind-alpine3.17
-    RUN apk update && apk add --virtual build-dependencies gcc musl-dev jq go nodejs make bash curl
+    RUN apk update && apk add jq go nodejs make bash curl
     RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /bin ${GOLANGCI_LINT_VERSION}
-    ARG GOPROXY
-    ARG GOSUMDB
+    ENV CGO_ENABLED=0
+    ENV GOPROXY http://172.26.0.2:8080
+    ENV GOSUMDB=off
 
     WORKDIR /src
 
@@ -108,24 +105,28 @@ tests:
 
 lint:
     ARG --required LOCATION
-    BUILD ./$LOCATION+lint
+    FROM ./$LOCATION+sources
+    COPY .golangci.yml /tmp/.golangci.yml
+    RUN --mount=type=cache,target=/root/.cache/go-build \
+        golangci-lint -v run --fix --timeout=10m --verbose -c /tmp/.golangci.yml
+    SAVE ARTIFACT ./* AS LOCAL ./$LOCATION/
 
 build-all:
-    DO +LOAD_SOURCES --DEPENDENCY_PATH=components
+    LOCALLY
     FOR component IN $(ls components)
         BUILD +build-image --COMPONENT=$component
     END
 
 tests-all:
+    LOCALLY
     BUILD +tests --LOCATION=libs/go-libs
-    DO +LOAD_SOURCES --DEPENDENCY_PATH=components
     FOR component IN $(ls components)
         BUILD +tests --LOCATION=components/$component
     END
 
 lint-all:
+    LOCALLY
     BUILD +lint --LOCATION=libs/go-libs
-    DO +LOAD_SOURCES --DEPENDENCY_PATH=components
     FOR component IN $(ls components)
         BUILD +lint --LOCATION=components/$component
     END
@@ -140,20 +141,17 @@ sdk-generation:
 
 build-openapi-spec:
     FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION}
-    WORKDIR /src
-    COPY . .
-    COPY (+sdk-generation/*) ./openapi
     WORKDIR /src/openapi
+    COPY openapi/package.* .
+    RUN npm install
+    COPY openapi /src/openapi
     RUN npm run build
     RUN sed -i -e "s/SDK_VERSION/$VERSION/g" build/generate.json
     SAVE ARTIFACT ./build/generate.json
 
 generate-sdk:
     ARG --required LANG
-    FROM openapitools/openapi-generator-cli:${OPENAPI_GENERATION_VERSION}
-    WORKDIR /src
-    COPY components components
-    COPY openapi openapi
+    FROM openapitools/openapi-generator-cli:v6.4.0
     COPY (+build-openapi-spec/generate.json) ./openapi/build/generate.json
     RUN docker-entrypoint.sh generate \
         -i ./openapi/build/generate.json \
@@ -167,23 +165,22 @@ generate-sdk:
     SAVE ARTIFACT ./sdks/$LANG AS LOCAL ./sdks/$LANG
 
 generate-all-sdk:
-    BUILD +generate-sdk --LANG=go
-    BUILD +generate-sdk --LANG=typescript-node
-    BUILD +generate-sdk --LANG=python
-    BUILD +generate-sdk --LANG=java
-    BUILD +generate-sdk --LANG=php
+    LOCALLY
+    FOR lang IN $(ls openapi/configs)
+        BUILD +generate-sdk --LANG=$lang
+    END
 
 tests-integrations:
     FROM +base-build-image
-    DO +LOAD_SOURCES --DEPENDENCY_PATH=sdks/go
-    DO +LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
-    DO +LOAD_SOURCES --DEPENDENCY_PATH=libs/events
-    DO +LOAD_SOURCES --DEPENDENCY_PATH=components
-    DO +LOAD_SOURCE_FILE --DEPENDENCY_PATH=go.mod
-    DO +LOAD_SOURCE_FILE --DEPENDENCY_PATH=go.sum
-    RUN go mod download -x
-    DO +DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=tests/integration
-    DO +LOAD_SOURCES --DEPENDENCY_PATH=tests/integration
+    DO +LOAD_SOURCES --LOCATION=sdks/go
+    DO +LOAD_SOURCES --LOCATION=libs/go-libs
+    DO +LOAD_SOURCES --LOCATION=libs/events
+    DO +LOAD_SOURCES --LOCATION=components
+    DO +LOAD_SOURCE_FILE --LOCATION=go.mod
+    DO +LOAD_SOURCE_FILE --LOCATION=go.sum
+    RUN go mod download
+    DO +DOWNLOAD_DEPENDENCIES --LOCATION=tests/integration
+    DO +LOAD_SOURCES --LOCATION=tests/integration
 
     WORKDIR /src/tests/integration
     # Keep here and don't use a fixed version. Ginkgo is using go.mod version.
@@ -193,10 +190,21 @@ tests-integrations:
     ARG STRIPE_API_KEY
     WITH DOCKER --compose docker-compose.yml \
         --allow-privileged \
-        --load jeffail/benthos:4.11=+benthos
-        RUN export DOCKER_HOSTNAME=$(ip addr show eth0 | grep brd | grep inet | cut -d \  -f 6 | cut -d / -f 1) && \
+        --load jeffail/benthos:4.11=+benthos \
+        --load postgres:15-alpine=+postgres \
+        --load opensearchproject/opensearch:2.2.1=+opensearch \
+        --load nats=+nats
+        RUN --mount=type=cache,target=/root/.cache/go-build \
+            export DOCKER_HOSTNAME=$(ip addr show eth0 | grep brd | grep inet | cut -d \  -f 6 | cut -d / -f 1) && \
             echo "Found gateway IP: $DOCKER_HOSTNAME" && \
-            ginkgo -v -p ./suite
+            ginkgo -v -p --cover --coverpkg github.com/formancehq/... --coverprofile coverage.out ./suite
+    END
+    SAVE ARTIFACT ./coverage.out AS LOCAL ./coverage.out
+
+coverage:
+    WAIT
+        BUILD +tests-all
+        BUILD +tests-integrations
     END
 
 all:

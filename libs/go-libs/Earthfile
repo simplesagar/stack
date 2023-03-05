@@ -2,8 +2,8 @@ VERSION 0.7
 
 sources:
     FROM ../..+base-build-image
-    DO ../../+DOWNLOAD_DEPENDENCIES --DEPENDENCY_PATH=libs/go-libs
-    DO ../../+LOAD_SOURCES --DEPENDENCY_PATH=libs/go-libs
+    DO ../../+DOWNLOAD_DEPENDENCIES --LOCATION=libs/go-libs
+    DO ../../+LOAD_SOURCES --LOCATION=libs/go-libs
     WORKDIR /src/libs/go-libs
 
 redpanda:
@@ -16,7 +16,3 @@ tests:
         --load postgres:15-alpine=../..+postgres
         RUN go test -v ./...
     END
-
-lint:
-    FROM +sources
-    DO ../..+LINT
