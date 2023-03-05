@@ -3,8 +3,6 @@ language: 'go'
 project:
   name: 'ledger'
   description: 'Ledger is a simple, fast, and secure way to manage your finances.'
-dependsOn:
-  - machine
 
 tasks:
   build:

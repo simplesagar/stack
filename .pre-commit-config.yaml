@@ -13,45 +13,45 @@ repos:
   - id: check-added-large-files
 - repo: local
   hooks:
-  - id: update-sdks
-    name: update SDKs
-    entry: ./scripts/update-sdks.sh
-    description: "Update SDKs"
-    language: script
-    files: 'swagger.yaml|swagger.yml|openapi.yml|openapi.yaml|openapi\/Taskfile.yaml' # TODO: Refine when all specs will be on the same location
-    pass_filenames: false
+#  - id: update-sdks
+#    name: update SDKs
+#    entry: ./scripts/update-sdks.sh
+#    description: "Update SDKs"
+#    language: script
+#    files: 'swagger.yaml|swagger.yml|openapi.yml|openapi.yaml|openapi\/Taskfile.yaml' # TODO: Refine when all specs will be on the same location
+#    pass_filenames: false
   - id: gofmt
     name: gofmt
-    entry: ./scripts/gofmt.sh
+    entry: moon run :gofmt
+    language: system
     description: "Runs `go fmt`, requires golang"
-    language: script
     files: \.go$
     require_serial: true
   - id: goimports
     name: goimports
-    entry: ./scripts/goimports.sh
+    entry: "moon run :goimports"
+    language: system
     files: \.go$
     description: "Runs `goimports`, requires golang"
-    language: script
     require_serial: true
   - id: gomodtidy
     name: gomodtidy
-    entry: ./scripts/gomodtidy.sh
-    language: script
+    entry: moon run :gomodtidy
+    language: system
     files: \.go$
     description: "Runs `go mod tidy`, requires golang"
     require_serial: true
   - id: golangci-lint
     name: golangci-lint
-    entry: ./scripts/golangci-lint.sh
-    language: script
+    entry: moon run :lint
+    language: system
     files: \.go$
     description: "Runs `golangci-lint`, requires golangci-lint"
     require_serial: true
   - id: gotests
     name: gotests
-    entry: ./scripts/gotests.sh
-    language: script
+    entry: moon run :test
+    language: system
     files: \.go$
     description: "Runs `go test`, requires golang"
     require_serial: true

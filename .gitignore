@@ -15,3 +15,7 @@ worktrees
 .moon/cache
 .moon/docker
 build
+
+# moon
+.moon/cache
+.moon/docker

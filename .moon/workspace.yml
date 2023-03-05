@@ -14,7 +14,7 @@ $schema: 'https://moonrepo.dev/schemas/workspace.json'
 projects:
   - 'components/*'
   - 'libs/*'
-  - 'openapi'
+#  - 'openapi'
 
 # Configures the version control system to utilize within the workspace. A VCS
 # is required for determining touched (added, modified, etc) files, calculating file hashes,
@@ -27,4 +27,4 @@ vcs:
   # The default branch (master/main/trunk) in the repository for comparing the
   # local branch against. For git, this is is typically "master" or "main",
   # and must include the remote prefix (before /). For svn, this should always be "trunk".
-  defaultBranch: 'main'
+  defaultBranch: 'feat/add_moon'

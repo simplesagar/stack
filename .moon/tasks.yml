@@ -43,6 +43,12 @@ fileGroups:
 # This setting requires a map, where the key is a unique name for the task,
 # and the value is an object of task parameters.
 tasks:
+  gomodtidy:
+    command: 'go mod tidy'
+  goimports:
+    command: 'goimports -w .'
+  gofmt:
+    command: 'go fmt -w .'
   lint:
     command: 'golangci-lint run --fix --allow-parallel-runners'
     affectedFiles: true
