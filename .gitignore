@@ -11,3 +11,4 @@ go.work.sum
 worktrees
 .env
 .arg
+bin

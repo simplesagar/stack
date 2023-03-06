@@ -11,18 +11,12 @@ sources:
     DO ../..+LOAD_SOURCES --LOCATION=components/search
     DO ../..+DOWNLOAD_DEPENDENCIES --LOCATION=components/operator
     DO ../..+LOAD_SOURCES --LOCATION=components/operator
-
-build:
-    FROM +sources
     RUN make manifests
     RUN make generate
-    SAVE ARTIFACT ./config AS LOCAL ./config
-    SAVE ARTIFACT ./apis AS LOCAL ./apis
-    DO ../..+GO_STD_BUILD --COMPONENT=operator
 
 build-image:
     FROM ../..+base-final-image
-    COPY (+build/operator) /usr/bin/operator
+    COPY (../..+build/operator --COMPONENT=operator) /usr/bin/operator
 
     USER 65532:65532
     ENTRYPOINT ["/usr/bin/operator"]

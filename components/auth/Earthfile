@@ -8,13 +8,9 @@ sources:
 
     WORKDIR /src/components/auth
 
-build:
-    FROM +sources
-    DO ../..+GO_STD_BUILD --COMPONENT=auth
-
 build-image:
     FROM ../..+base-final-image
-    COPY (+build/auth) /bin/auth
+    COPY (../..+build/auth --COMPONENT=auth) /bin/auth
     ENTRYPOINT ["/bin/auth"]
 
     DO ../..+SAVE_IMAGE --COMPONENT=auth

@@ -8,13 +8,9 @@ sources:
 
     WORKDIR /src/components/payments
 
-build:
-    FROM +sources
-    DO ../..+GO_STD_BUILD --COMPONENT=payments
-
 build-image:
     FROM ../..+base-final-image
-    COPY (+build/payments) /bin/payments
+    COPY (../..+build/payments --COMPONENT=payments) /bin/payments
     ENTRYPOINT ["/bin/payments"]
 
     DO ../..+SAVE_IMAGE --COMPONENT=payments

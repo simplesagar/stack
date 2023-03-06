@@ -8,13 +8,9 @@ sources:
 
     WORKDIR /src/components/ledger
 
-build:
-    FROM +sources
-    DO ../..+GO_STD_BUILD --COMPONENT=ledger --CGO_ENABLED=1
-
 build-image:
     FROM ../..+base-final-image
-    COPY (+build/ledger) /bin/ledger
+    COPY (../..+build/ledger --COMPONENT=ledger) /bin/ledger
     ENTRYPOINT ["/bin/ledger"]
     CMD ["serve"]
 

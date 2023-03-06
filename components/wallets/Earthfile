@@ -9,13 +9,9 @@ sources:
 
     WORKDIR /src/components/wallets
 
-build:
-    FROM +sources
-    DO ../..+GO_STD_BUILD --COMPONENT=wallets
-
 build-image:
     FROM ../..+base-final-image
-    COPY (+build/wallets) /bin/wallets
+    COPY (../..+build/wallets --COMPONENT=wallets) /bin/wallets
     ENTRYPOINT ["/bin/wallets"]
 
     DO ../..+SAVE_IMAGE --COMPONENT=wallets

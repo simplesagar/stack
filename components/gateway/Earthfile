@@ -8,13 +8,9 @@ sources:
 
     WORKDIR /src/components/gateway
 
-build:
-    FROM +sources
-    DO ../..+GO_STD_BUILD --COMPONENT=gateway
-
 build-image:
     FROM ../..+base-final-image
-    COPY (+build/gateway) /usr/bin/caddy
+    COPY (../..+build/gateway --COMPONENT=gateway) /usr/bin/caddy
     COPY Caddyfile /etc/caddy/Caddyfile
 
     ENTRYPOINT ["/usr/bin/caddy"]

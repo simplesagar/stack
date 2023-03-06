@@ -10,13 +10,9 @@ sources:
 
     WORKDIR /src/components/fctl
 
-build:
-    FROM +sources
-    DO ../..+GO_STD_BUILD --COMPONENT=fctl
-
 build-image:
     FROM ../..+base-final-image
-    COPY (+build/fctl) /bin/fctl
+    COPY (../..+build/fctl --COMPONENT=fctl) /bin/fctl
     ENTRYPOINT ["/bin/fctl"]
 
     DO ../..+SAVE_IMAGE --COMPONENT=fctl

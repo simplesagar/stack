@@ -8,13 +8,9 @@ sources:
 
     WORKDIR /src/components/search
 
-build:
-    FROM +sources
-    DO ../..+GO_STD_BUILD --COMPONENT=search
-
 build-image:
     FROM ../..+base-final-image
-    COPY (+build/search) /bin/search
+    COPY (../..+build/search --COMPONENT=search) /bin/search
     ENTRYPOINT ["/bin/search"]
 
     DO ../..+SAVE_IMAGE --COMPONENT=search

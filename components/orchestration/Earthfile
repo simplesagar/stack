@@ -9,13 +9,9 @@ sources:
 
     WORKDIR /src/components/orchestration
 
-build:
-    FROM +sources
-    DO ../..+GO_STD_BUILD --COMPONENT=orchestration
-
 build-image:
     FROM ../..+base-final-image
-    COPY (+build/orchestration) /bin/orchestration
+    COPY (../..+build/orchestration --COMPONENT=orchestration) /bin/orchestration
     ENTRYPOINT ["/bin/orchestration"]
 
     DO ../..+SAVE_IMAGE --COMPONENT=orchestration

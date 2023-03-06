@@ -80,7 +80,7 @@ base-build-image:
     RUN apk update && apk add jq go nodejs make bash curl
     RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /bin ${GOLANGCI_LINT_VERSION}
     ENV CGO_ENABLED=0
-    ENV GOPROXY http://172.26.0.2:8080
+    ENV GOPROXY http://172.26.0.4:8080
     ENV GOSUMDB=off
 
     WORKDIR /src
@@ -94,6 +94,21 @@ sources:
     ARG --required SOURCE_PATH
     COPY $SOURCE_PATH /src/$SOURCE_PATH
     SAVE ARTIFACT /src/$SOURCE_PATH $SOURCE_PATH
+
+build-component-binary:
+    ARG --required COMPONENT
+
+    FROM ./components/$COMPONENT+sources
+    ARG GOOS=linux
+    ARG GOARCH=arm64
+    ARG SEGMENT_WRITE_KEY=
+    ARG EARTHLY_GIT_HASH
+    RUN GOOS=$GOOS GOARCH=$GOARCH go build -o $COMPONENT \
+        -ldflags="-X github.com/formancehq/$COMPONENT/cmd.Version=${VERSION} \
+        -X github.com/formancehq/$COMPONENT/cmd.BuildDate=$BUILD_DATE \
+        -X github.com/formancehq/$COMPONENT/cmd.Commit=$EARTHLY_GIT_HASH \
+        -X github.com/formancehq/$COMPONENT/cmd.DefaultSegmentWriteKey=$SEGMENT_WRITE_KEY" ./
+    SAVE ARTIFACT ./$COMPONENT AS LOCAL ./bin/$COMPONENT-$GOOS-$GOARCH
 
 build-image:
     ARG --required COMPONENT
@@ -111,7 +126,23 @@ lint:
         golangci-lint -v run --fix --timeout=10m --verbose -c /tmp/.golangci.yml
     SAVE ARTIFACT ./* AS LOCAL ./$LOCATION/
 
-build-all:
+build-component-binaries:
+    LOCALLY
+    ARG GOOS=
+    ARG GOARCH=
+    FOR component IN $(ls components)
+        BUILD +build-component-binary --COMPONENT=$component --GOOS=$GOOS --GOARCH=$GOARCH
+    END
+
+build-component-binaries-on-all-architectures:
+    LOCALLY
+    BUILD +build-component-binaries --GOOS=linux --GOARCH=amd64
+    BUILD +build-component-binaries --GOOS=linux --GOARCH=arm64
+    BUILD +build-component-binaries --GOOS=darwin --GOARCH=amd64
+    BUILD +build-component-binaries --GOOS=darwin --GOARCH=arm64
+    BUILD +build-component-binaries --GOOS=windows --GOARCH=amd64
+
+build-all-images:
     LOCALLY
     FOR component IN $(ls components)
         BUILD +build-image --COMPONENT=$component
@@ -139,7 +170,7 @@ sdk-generation:
     SAVE ARTIFACT ./package.*
     SAVE ARTIFACT ./node_modules
 
-build-openapi-spec:
+generate-openapi-spec:
     FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION}
     WORKDIR /src/openapi
     COPY openapi/package.* .
@@ -152,7 +183,7 @@ build-openapi-spec:
 generate-sdk:
     ARG --required LANG
     FROM openapitools/openapi-generator-cli:v6.4.0
-    COPY (+build-openapi-spec/generate.json) ./openapi/build/generate.json
+    COPY (+generate-openapi-spec/generate.json) ./openapi/build/generate.json
     RUN docker-entrypoint.sh generate \
         -i ./openapi/build/generate.json \
         -g $(echo $LANG | cut -d - -f1) \
@@ -164,7 +195,7 @@ generate-sdk:
         -p apiVersion=$VERSION
     SAVE ARTIFACT ./sdks/$LANG AS LOCAL ./sdks/$LANG
 
-generate-all-sdk:
+generate-all-sdks:
     LOCALLY
     FOR lang IN $(ls openapi/configs)
         BUILD +generate-sdk --LANG=$lang
@@ -201,14 +232,12 @@ tests-integrations:
     END
     SAVE ARTIFACT ./coverage.out AS LOCAL ./coverage.out
 
-coverage:
+all:
     WAIT
+        BUILD +generate-all-sdks
+        BUILD +lint-all
         BUILD +tests-all
         BUILD +tests-integrations
     END
-
-all:
-    BUILD +build-all
-    BUILD +lint-all
-    BUILD +tests-all
-    BUILD +tests-integrations
+    BUILD +build-component-binaries-on-all-architectures
+    BUILD +build-all-images
