@@ -52,8 +52,6 @@ spec:
                       value: ledger
                     - name: BIND
                       value: 0.0.0.0:8080
-                    - name: STORAGE_DRIVER
-                      value: postgres
                     - name: PUBLISHER_TOPIC_MAPPING
                       value: '*:stack1-ledger'
                     - name: BROKER

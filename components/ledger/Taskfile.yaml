@@ -40,10 +40,6 @@ tasks:
       STORAGE_POSTGRES_CONN_STRING: "postgresql://ledger:ledger@127.0.0.1/ledger"
 
   tests:local:
-    cmds:
-      - task: tests:local:postgres
-
-  tests:local:postgres:
     deps: [postgres]
     cmds:
       - >
