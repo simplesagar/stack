@@ -2,6 +2,8 @@ package wallet
 
 import (
 	"context"
+	"sort"
+	"time"
 
 	sdk "github.com/formancehq/formance-sdk-go"
 	"github.com/formancehq/stack/libs/go-libs/metadata"
@@ -105,14 +107,23 @@ func (m *Manager) Debit(ctx context.Context, debit Debit) (*DebitHold, error) {
 	}
 
 	sources := make([]string, 0)
-	var err error
 	switch {
 	case len(debit.Balances) == 0:
 		sources = append(sources, m.chart.GetMainBalanceAccount(debit.WalletID))
 	case len(debit.Balances) == 1 && debit.Balances[0] == "*":
-		sources, err = fetchAndMapAllAccounts[string](ctx, m, BalancesMetadataFilter(debit.WalletID), Account.GetAddress)
+		balancesRaw, err := fetchAndMapAllAccounts[Balance](ctx, m, BalancesMetadataFilter(debit.WalletID), BalanceFromAccount)
 		if err != nil {
 			return nil, err
+		}
+		balances := Balances(balancesRaw)
+		sort.Stable(balances)
+
+		// Filter expired and generate sources
+		for _, balance := range balances {
+			if balance.ExpiresAt != nil && balance.ExpiresAt.Before(time.Now()) {
+				continue
+			}
+			sources = append(sources, m.chart.GetBalanceAccount(debit.WalletID, balance.Name))
 		}
 	default:
 		for _, balance := range debit.Balances {
@@ -416,7 +427,7 @@ func (m *Manager) CreateBalance(ctx context.Context, data *CreateBalance) (*Bala
 		return nil, ErrBalanceAlreadyExists
 	}
 
-	balance := NewBalance(data.Name)
+	balance := NewBalance(data.Name, data.ExpiresAt)
 
 	if err := m.client.AddMetadataToAccount(
 		ctx,

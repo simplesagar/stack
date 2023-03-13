@@ -33,6 +33,7 @@ linters:
     - nestif
     - goerr113
     - gomoddirectives
+    - godox
     # Deprecated linters
     - ifshort
     - varcheck

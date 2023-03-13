@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	sdk "github.com/formancehq/formance-sdk-go"
 	"github.com/formancehq/stack/libs/go-libs/metadata"
@@ -151,7 +152,11 @@ var walletDebitTestCases = []testCase{
 		},
 		expectedScript: func(testEnv *testEnv, walletID string, h *wallet.DebitHold) sdk.Script {
 			return sdk.Script{
-				Plain: wallet.BuildDebitWalletScript(testEnv.Chart().GetBalanceAccount(walletID, "secondary")),
+				Plain: wallet.BuildDebitWalletScript(
+					testEnv.Chart().GetBalanceAccount(walletID, "coupon1"),
+					testEnv.Chart().GetBalanceAccount(walletID, "coupon2"),
+					testEnv.Chart().GetBalanceAccount(walletID, "main"),
+				),
 				Vars: map[string]interface{}{
 					"destination": "world",
 					"amount": map[string]any{
@@ -235,13 +240,38 @@ func TestWalletsDebit(t *testing.T) {
 					require.Equal(t, testEnv.LedgerName(), ledger)
 					require.Equal(t, query.Metadata, wallet.BalancesMetadataFilter(walletID))
 					return &sdk.AccountsCursorResponseCursor{
-						Data: []sdk.Account{{
-							Address: testEnv.Chart().GetBalanceAccount(walletID, "secondary"),
-							Type:    nil,
-							Metadata: wallet.Balance{
-								Name: "secondary",
-							}.LedgerMetadata(walletID),
-						}},
+						Data: []sdk.Account{
+							{
+								Address: testEnv.Chart().GetBalanceAccount(walletID, "coupon2"),
+								Type:    nil,
+								Metadata: wallet.Balance{
+									Name: "coupon2",
+								}.LedgerMetadata(walletID),
+							},
+							{
+								Address: testEnv.Chart().GetBalanceAccount(walletID, "coupon1"),
+								Type:    nil,
+								Metadata: wallet.Balance{
+									Name:      "coupon1",
+									ExpiresAt: ptr(time.Now().Add(5 * time.Second)),
+								}.LedgerMetadata(walletID),
+							},
+							{
+								Address: testEnv.Chart().GetBalanceAccount(walletID, "coupon3"),
+								Type:    nil,
+								Metadata: wallet.Balance{
+									Name:      "coupon3",
+									ExpiresAt: ptr(time.Now().Add(-time.Minute)),
+								}.LedgerMetadata(walletID),
+							},
+							{
+								Address: testEnv.Chart().GetBalanceAccount(walletID, "main"),
+								Type:    nil,
+								Metadata: wallet.Balance{
+									Name: "main",
+								}.LedgerMetadata(walletID),
+							},
+						},
 					}, nil
 				}),
 				WithRunScript(func(ctx context.Context, ledger string, script sdk.Script) (*sdk.ScriptResponse, error) {
