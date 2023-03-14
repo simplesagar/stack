@@ -78,6 +78,7 @@ import { GetTransactionsResponse } from '../models/GetTransactionsResponse';
 import { GetTransactionsResponseCursor } from '../models/GetTransactionsResponseCursor';
 import { GetTransactionsResponseCursorAllOf } from '../models/GetTransactionsResponseCursorAllOf';
 import { GetWalletResponse } from '../models/GetWalletResponse';
+import { GetWalletSummaryResponse } from '../models/GetWalletSummaryResponse';
 import { GetWorkflowInstanceHistoryResponse } from '../models/GetWorkflowInstanceHistoryResponse';
 import { GetWorkflowInstanceHistoryStageResponse } from '../models/GetWorkflowInstanceHistoryStageResponse';
 import { GetWorkflowInstanceResponse } from '../models/GetWorkflowInstanceResponse';
@@ -1344,6 +1345,15 @@ export class PromiseWalletsApi {
      */
     public getWallet(id: string, _options?: Configuration): Promise<GetWalletResponse> {
         const result = this.api.getWallet(id, _options);
+        return result.toPromise();
+    }
+
+    /**
+     * Get wallet summary
+     * @param id 
+     */
+    public getWalletSummary(id: string, _options?: Configuration): Promise<GetWalletSummaryResponse> {
+        const result = this.api.getWalletSummary(id, _options);
         return result.toPromise();
     }
 

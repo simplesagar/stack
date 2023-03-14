@@ -78,6 +78,7 @@ import { GetTransactionsResponse } from '../models/GetTransactionsResponse';
 import { GetTransactionsResponseCursor } from '../models/GetTransactionsResponseCursor';
 import { GetTransactionsResponseCursorAllOf } from '../models/GetTransactionsResponseCursorAllOf';
 import { GetWalletResponse } from '../models/GetWalletResponse';
+import { GetWalletSummaryResponse } from '../models/GetWalletSummaryResponse';
 import { GetWorkflowInstanceHistoryResponse } from '../models/GetWorkflowInstanceHistoryResponse';
 import { GetWorkflowInstanceHistoryStageResponse } from '../models/GetWorkflowInstanceHistoryStageResponse';
 import { GetWorkflowInstanceResponse } from '../models/GetWorkflowInstanceResponse';
@@ -2190,6 +2191,15 @@ export interface WalletsApiGetWalletRequest {
     id: string
 }
 
+export interface WalletsApiGetWalletSummaryRequest {
+    /**
+     * 
+     * @type string
+     * @memberof WalletsApigetWalletSummary
+     */
+    id: string
+}
+
 export interface WalletsApiListBalancesRequest {
     /**
      * 
@@ -2337,6 +2347,14 @@ export class ObjectWalletsApi {
      */
     public getWallet(param: WalletsApiGetWalletRequest, options?: Configuration): Promise<GetWalletResponse> {
         return this.api.getWallet(param.id,  options).toPromise();
+    }
+
+    /**
+     * Get wallet summary
+     * @param param the request object
+     */
+    public getWalletSummary(param: WalletsApiGetWalletSummaryRequest, options?: Configuration): Promise<GetWalletSummaryResponse> {
+        return this.api.getWalletSummary(param.id,  options).toPromise();
     }
 
     /**

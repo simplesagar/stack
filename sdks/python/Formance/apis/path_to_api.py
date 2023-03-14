@@ -54,6 +54,7 @@ from Formance.apis.paths.api_wallets__info import ApiWalletsInfo
 from Formance.apis.paths.api_wallets_transactions import ApiWalletsTransactions
 from Formance.apis.paths.api_wallets_wallets import ApiWalletsWallets
 from Formance.apis.paths.api_wallets_wallets_id import ApiWalletsWalletsId
+from Formance.apis.paths.api_wallets_wallets_id_summary import ApiWalletsWalletsIdSummary
 from Formance.apis.paths.api_wallets_wallets_id_balances import ApiWalletsWalletsIdBalances
 from Formance.apis.paths.api_wallets_wallets_id_balances_balance_name import ApiWalletsWalletsIdBalancesBalanceName
 from Formance.apis.paths.api_wallets_wallets_id_debit import ApiWalletsWalletsIdDebit
@@ -129,6 +130,7 @@ PathToApi = typing_extensions.TypedDict(
         PathValues.API_WALLETS_TRANSACTIONS: ApiWalletsTransactions,
         PathValues.API_WALLETS_WALLETS: ApiWalletsWallets,
         PathValues.API_WALLETS_WALLETS_ID: ApiWalletsWalletsId,
+        PathValues.API_WALLETS_WALLETS_ID_SUMMARY: ApiWalletsWalletsIdSummary,
         PathValues.API_WALLETS_WALLETS_ID_BALANCES: ApiWalletsWalletsIdBalances,
         PathValues.API_WALLETS_WALLETS_ID_BALANCES_BALANCE_NAME: ApiWalletsWalletsIdBalancesBalanceName,
         PathValues.API_WALLETS_WALLETS_ID_DEBIT: ApiWalletsWalletsIdDebit,
@@ -205,6 +207,7 @@ path_to_api = PathToApi(
         PathValues.API_WALLETS_TRANSACTIONS: ApiWalletsTransactions,
         PathValues.API_WALLETS_WALLETS: ApiWalletsWallets,
         PathValues.API_WALLETS_WALLETS_ID: ApiWalletsWalletsId,
+        PathValues.API_WALLETS_WALLETS_ID_SUMMARY: ApiWalletsWalletsIdSummary,
         PathValues.API_WALLETS_WALLETS_ID_BALANCES: ApiWalletsWalletsIdBalances,
         PathValues.API_WALLETS_WALLETS_ID_BALANCES_BALANCE_NAME: ApiWalletsWalletsIdBalancesBalanceName,
         PathValues.API_WALLETS_WALLETS_ID_DEBIT: ApiWalletsWalletsIdDebit,
