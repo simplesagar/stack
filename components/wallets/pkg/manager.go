@@ -406,6 +406,73 @@ func (m *Manager) GetWallet(ctx context.Context, id string) (*WithBalances, erro
 	return Ptr(WithBalancesFromAccount(m.ledgerName, account)), nil
 }
 
+type Summary struct {
+	Balances       []ExpandedBalance `json:"balances"`
+	AvailableFunds map[string]int64  `json:"availableFunds"`
+	ExpiredFunds   map[string]int64  `json:"expiredFunds"`
+	ExpirableFunds map[string]int64  `json:"expirableFunds"`
+	HoldFunds      map[string]int64  `json:"holdFunds"`
+}
+
+func (m *Manager) GetWalletSummary(ctx context.Context, id string) (*Summary, error) {
+	balances, err := fetchAndMapAllAccounts(ctx, m, metadata.Metadata{
+		MetadataKeyWalletID: id,
+	}, func(src Account) ExpandedBalance {
+		account, err := m.client.GetAccount(ctx, m.ledgerName, src.GetAddress())
+		if err != nil {
+			// TODO: refine error handling
+			panic(errors.Wrap(err, "getting account"))
+		}
+		return ExpandedBalanceFromAccount(account)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	s := &Summary{
+		Balances:       balances,
+		AvailableFunds: map[string]int64{},
+		ExpiredFunds:   map[string]int64{},
+		ExpirableFunds: map[string]int64{},
+		HoldFunds:      map[string]int64{},
+	}
+
+	for _, balance := range balances {
+		for asset, amount := range balance.Assets {
+			switch {
+			case balance.ExpiresAt != nil && balance.ExpiresAt.Before(time.Now()):
+				s.ExpiredFunds[asset] += amount
+			case balance.ExpiresAt != nil && !balance.ExpiresAt.Before(time.Now()):
+				s.ExpirableFunds[asset] += amount
+				s.AvailableFunds[asset] += amount
+			case balance.ExpiresAt == nil:
+				s.AvailableFunds[asset] += amount
+			}
+		}
+	}
+
+	holds, err := fetchAndMapAllAccounts(ctx, m, metadata.Metadata{
+		MetadataKeyHoldWalletID: id,
+	}, func(src Account) ExpandedDebitHold {
+		account, err := m.client.GetAccount(ctx, m.ledgerName, src.GetAddress())
+		if err != nil {
+			// TODO: refine error handling
+			panic(errors.Wrap(err, "getting account"))
+		}
+
+		return ExpandedDebitHoldFromLedgerAccount(account)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, hold := range holds {
+		s.HoldFunds[hold.Asset] += hold.Remaining.Int64()
+	}
+
+	return s, nil
+}
+
 func (m *Manager) GetHold(ctx context.Context, id string) (*ExpandedDebitHold, error) {
 	account, err := m.client.GetAccount(ctx, m.ledgerName, m.chart.GetHoldAccount(id))
 	if err != nil {

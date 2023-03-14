@@ -90,6 +90,10 @@ func (a *MonetaryInt) Uint64() uint64 {
 	return (*big.Int)(a).Uint64()
 }
 
+func (a *MonetaryInt) Int64() int64 {
+	return (*big.Int)(a).Int64()
+}
+
 func (a *MonetaryInt) String() string {
 	if a == nil {
 		return "0"

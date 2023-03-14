@@ -6098,8 +6098,12 @@ components:
     Balance:
       example:
         name: name
+        expiresAt: 2000-01-23T04:56:07.000+00:00
       properties:
         name:
+          type: string
+        expiresAt:
+          format: date-time
           type: string
       required:
       - name
@@ -6132,6 +6136,7 @@ components:
       example:
         data:
           name: name
+          expiresAt: 2000-01-23T04:56:07.000+00:00
       properties:
         data:
           $ref: '#/components/schemas/Balance'

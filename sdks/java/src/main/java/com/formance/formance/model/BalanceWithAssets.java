@@ -22,6 +22,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +34,10 @@ public class BalanceWithAssets {
   public static final String SERIALIZED_NAME_NAME = "name";
   @SerializedName(SERIALIZED_NAME_NAME)
   private String name;
+
+  public static final String SERIALIZED_NAME_EXPIRES_AT = "expiresAt";
+  @SerializedName(SERIALIZED_NAME_EXPIRES_AT)
+  private OffsetDateTime expiresAt;
 
   public static final String SERIALIZED_NAME_ASSETS = "assets";
   @SerializedName(SERIALIZED_NAME_ASSETS)
@@ -60,6 +65,28 @@ public class BalanceWithAssets {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+
+  public BalanceWithAssets expiresAt(OffsetDateTime expiresAt) {
+    
+    this.expiresAt = expiresAt;
+    return this;
+  }
+
+   /**
+   * Get expiresAt
+   * @return expiresAt
+  **/
+  @javax.annotation.Nullable
+
+  public OffsetDateTime getExpiresAt() {
+    return expiresAt;
+  }
+
+
+  public void setExpiresAt(OffsetDateTime expiresAt) {
+    this.expiresAt = expiresAt;
   }
 
 
@@ -100,12 +127,13 @@ public class BalanceWithAssets {
     }
     BalanceWithAssets balanceWithAssets = (BalanceWithAssets) o;
     return Objects.equals(this.name, balanceWithAssets.name) &&
+        Objects.equals(this.expiresAt, balanceWithAssets.expiresAt) &&
         Objects.equals(this.assets, balanceWithAssets.assets);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, assets);
+    return Objects.hash(name, expiresAt, assets);
   }
 
   @Override
@@ -113,6 +141,7 @@ public class BalanceWithAssets {
     StringBuilder sb = new StringBuilder();
     sb.append("class BalanceWithAssets {\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
+    sb.append("    expiresAt: ").append(toIndentedString(expiresAt)).append("\n");
     sb.append("    assets: ").append(toIndentedString(assets)).append("\n");
     sb.append("}");
     return sb.toString();

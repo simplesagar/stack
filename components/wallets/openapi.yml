@@ -885,6 +885,9 @@ components:
       properties:
         name:
           type: string
+        expiresAt:
+          type: string
+          format: date-time
     BalanceWithAssets:
       allOf:
       - $ref: '#/components/schemas/Balance'

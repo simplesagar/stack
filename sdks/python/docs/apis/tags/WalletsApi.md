@@ -210,6 +210,7 @@ with Formance.ApiClient(configuration) as api_client:
     }
     body = Balance(
         name="name_example",
+        expires_at="1970-01-01T00:00:00.00Z",
     )
     try:
         # Create a balance
