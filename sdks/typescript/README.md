@@ -83,7 +83,26 @@ sdk.getServerInfo().then((res: GetServerInfoResponse | AxiosError) => {
 
 ### ledger
 
+* `createTransactions` - Create a new batch of transactions to a ledger
+* `addMetadataOnTransaction` - Set the metadata of a transaction by its ID
+* `addMetadataToAccount` - Add metadata to an account
+* `countAccounts` - Count the accounts from a ledger
+* `countTransactions` - Count the transactions from a ledger
+* `createTransaction` - Create a new transaction to a ledger
+* `getAccount` - Get account by its address
+* `getBalances` - Get the balances from a ledger's account
+* `getBalancesAggregated` - Get the aggregated balances from selected accounts
+* `getInfo` - Show server information
 * `getLedgerInfo` - Get information about a ledger
+* `getMapping` - Get the mapping of a ledger
+* `getTransaction` - Get transaction from a ledger by its ID
+* `listAccounts` - List accounts from a ledger
+* `listLogs` - List the logs from a ledger
+* `listTransactions` - List transactions from a ledger
+* `readStats` - Get statistics from a ledger
+* `revertTransaction` - Revert a ledger transaction by its ID
+* `runScript` - Execute a Numscript
+* `updateMapping` - Update the mapping of a ledger
 
 ### logs
 

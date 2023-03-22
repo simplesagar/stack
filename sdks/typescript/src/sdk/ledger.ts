@@ -32,6 +32,659 @@ export class Ledger {
   }
 
   /**
+   * Create a new batch of transactions to a ledger
+   */
+  createTransactions(
+    req: operations.CreateTransactionsRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.CreateTransactionsResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.CreateTransactionsRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/transactions/batch",
+      req
+    );
+
+    let [reqBodyHeaders, reqBody]: [object, any] = [{}, {}];
+
+    try {
+      [reqBodyHeaders, reqBody] = utils.serializeRequestBody(
+        req,
+        "transactions",
+        "json"
+      );
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        throw new Error(`Error serializing request body, cause: ${e.message}`);
+      }
+    }
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const headers = { ...reqBodyHeaders, ...config?.headers };
+    if (reqBody == null || Object.keys(reqBody).length === 0)
+      throw new Error("request body is required");
+
+    const r = client.request({
+      url: url,
+      method: "post",
+      headers: headers,
+      data: reqBody,
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.CreateTransactionsResponse =
+        new operations.CreateTransactionsResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.transactionsResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.TransactionsResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Set the metadata of a transaction by its ID
+   */
+  addMetadataOnTransaction(
+    req: operations.AddMetadataOnTransactionRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.AddMetadataOnTransactionResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.AddMetadataOnTransactionRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/transactions/{txid}/metadata",
+      req
+    );
+
+    let [reqBodyHeaders, reqBody]: [object, any] = [{}, {}];
+
+    try {
+      [reqBodyHeaders, reqBody] = utils.serializeRequestBody(
+        req,
+        "requestBody",
+        "json"
+      );
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        throw new Error(`Error serializing request body, cause: ${e.message}`);
+      }
+    }
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const headers = { ...reqBodyHeaders, ...config?.headers };
+
+    const r = client.request({
+      url: url,
+      method: "post",
+      headers: headers,
+      data: reqBody,
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.AddMetadataOnTransactionResponse =
+        new operations.AddMetadataOnTransactionResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 204:
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Add metadata to an account
+   */
+  addMetadataToAccount(
+    req: operations.AddMetadataToAccountRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.AddMetadataToAccountResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.AddMetadataToAccountRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/accounts/{address}/metadata",
+      req
+    );
+
+    let [reqBodyHeaders, reqBody]: [object, any] = [{}, {}];
+
+    try {
+      [reqBodyHeaders, reqBody] = utils.serializeRequestBody(
+        req,
+        "requestBody",
+        "json"
+      );
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        throw new Error(`Error serializing request body, cause: ${e.message}`);
+      }
+    }
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const headers = { ...reqBodyHeaders, ...config?.headers };
+    if (reqBody == null || Object.keys(reqBody).length === 0)
+      throw new Error("request body is required");
+
+    const r = client.request({
+      url: url,
+      method: "post",
+      headers: headers,
+      data: reqBody,
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.AddMetadataToAccountResponse =
+        new operations.AddMetadataToAccountResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 204:
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Count the accounts from a ledger
+   */
+  countAccounts(
+    req: operations.CountAccountsRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.CountAccountsResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.CountAccountsRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/accounts",
+      req
+    );
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const queryParams: string = utils.serializeQueryParams(req);
+
+    const r = client.request({
+      url: url + queryParams,
+      method: "head",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.CountAccountsResponse =
+        new operations.CountAccountsResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+          headers: utils.getHeadersFromResponse(httpRes.headers),
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Count the transactions from a ledger
+   */
+  countTransactions(
+    req: operations.CountTransactionsRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.CountTransactionsResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.CountTransactionsRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/transactions",
+      req
+    );
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const queryParams: string = utils.serializeQueryParams(req);
+
+    const r = client.request({
+      url: url + queryParams,
+      method: "head",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.CountTransactionsResponse =
+        new operations.CountTransactionsResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+          headers: utils.getHeadersFromResponse(httpRes.headers),
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Create a new transaction to a ledger
+   */
+  createTransaction(
+    req: operations.CreateTransactionRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.CreateTransactionResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.CreateTransactionRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/transactions",
+      req
+    );
+
+    let [reqBodyHeaders, reqBody]: [object, any] = [{}, {}];
+
+    try {
+      [reqBodyHeaders, reqBody] = utils.serializeRequestBody(
+        req,
+        "postTransaction",
+        "json"
+      );
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        throw new Error(`Error serializing request body, cause: ${e.message}`);
+      }
+    }
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const headers = { ...reqBodyHeaders, ...config?.headers };
+    const queryParams: string = utils.serializeQueryParams(req);
+    if (reqBody == null || Object.keys(reqBody).length === 0)
+      throw new Error("request body is required");
+
+    const r = client.request({
+      url: url + queryParams,
+      method: "post",
+      headers: headers,
+      data: reqBody,
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.CreateTransactionResponse =
+        new operations.CreateTransactionResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.transactionsResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.TransactionsResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Get account by its address
+   */
+  getAccount(
+    req: operations.GetAccountRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.GetAccountResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.GetAccountRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/accounts/{address}",
+      req
+    );
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const r = client.request({
+      url: url,
+      method: "get",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.GetAccountResponse =
+        new operations.GetAccountResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.accountResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.AccountResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Get the balances from a ledger's account
+   */
+  getBalances(
+    req: operations.GetBalancesRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.GetBalancesResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.GetBalancesRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/balances",
+      req
+    );
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const queryParams: string = utils.serializeQueryParams(req);
+
+    const r = client.request({
+      url: url + queryParams,
+      method: "get",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.GetBalancesResponse =
+        new operations.GetBalancesResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.balancesCursorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.BalancesCursorResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Get the aggregated balances from selected accounts
+   */
+  getBalancesAggregated(
+    req: operations.GetBalancesAggregatedRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.GetBalancesAggregatedResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.GetBalancesAggregatedRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/aggregate/balances",
+      req
+    );
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const queryParams: string = utils.serializeQueryParams(req);
+
+    const r = client.request({
+      url: url + queryParams,
+      method: "get",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.GetBalancesAggregatedResponse =
+        new operations.GetBalancesAggregatedResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.aggregateBalancesResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.AggregateBalancesResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Show server information
+   */
+  getInfo(config?: AxiosRequestConfig): Promise<operations.GetInfoResponse> {
+    const baseURL: string = this._serverURL;
+    const url: string = baseURL.replace(/\/$/, "") + "/api/ledger/_info";
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const r = client.request({
+      url: url,
+      method: "get",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.GetInfoResponse = new operations.GetInfoResponse({
+        statusCode: httpRes.status,
+        contentType: contentType,
+        rawResponse: httpRes,
+      });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.configInfoResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ConfigInfoResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
    * Get information about a ledger
    */
   getLedgerInfo(
@@ -72,6 +725,601 @@ export class Ledger {
         case httpRes?.status == 200:
           if (utils.matchContentType(contentType, `application/json`)) {
             res.ledgerInfoResponse = httpRes?.data;
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Get the mapping of a ledger
+   */
+  getMapping(
+    req: operations.GetMappingRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.GetMappingResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.GetMappingRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/mapping",
+      req
+    );
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const r = client.request({
+      url: url,
+      method: "get",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.GetMappingResponse =
+        new operations.GetMappingResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.mappingResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.MappingResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Get transaction from a ledger by its ID
+   */
+  getTransaction(
+    req: operations.GetTransactionRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.GetTransactionResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.GetTransactionRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/transactions/{txid}",
+      req
+    );
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const r = client.request({
+      url: url,
+      method: "get",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.GetTransactionResponse =
+        new operations.GetTransactionResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.transactionResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.TransactionResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * List accounts from a ledger
+   *
+   * @remarks
+   * List accounts from a ledger, sorted by address in descending order.
+   */
+  listAccounts(
+    req: operations.ListAccountsRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.ListAccountsResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.ListAccountsRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/accounts",
+      req
+    );
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const queryParams: string = utils.serializeQueryParams(req);
+
+    const r = client.request({
+      url: url + queryParams,
+      method: "get",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.ListAccountsResponse =
+        new operations.ListAccountsResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.accountsCursorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.AccountsCursorResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * List the logs from a ledger
+   *
+   * @remarks
+   * List the logs from a ledger, sorted by ID in descending order.
+   */
+  listLogs(
+    req: operations.ListLogsRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.ListLogsResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.ListLogsRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/logs",
+      req
+    );
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const queryParams: string = utils.serializeQueryParams(req);
+
+    const r = client.request({
+      url: url + queryParams,
+      method: "get",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.ListLogsResponse = new operations.ListLogsResponse({
+        statusCode: httpRes.status,
+        contentType: contentType,
+        rawResponse: httpRes,
+      });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.logsCursorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.LogsCursorResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * List transactions from a ledger
+   *
+   * @remarks
+   * List transactions from a ledger, sorted by txid in descending order.
+   */
+  listTransactions(
+    req: operations.ListTransactionsRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.ListTransactionsResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.ListTransactionsRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/transactions",
+      req
+    );
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const queryParams: string = utils.serializeQueryParams(req);
+
+    const r = client.request({
+      url: url + queryParams,
+      method: "get",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.ListTransactionsResponse =
+        new operations.ListTransactionsResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.transactionsCursorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.TransactionsCursorResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Get statistics from a ledger
+   *
+   * @remarks
+   * Get statistics from a ledger. (aggregate metrics on accounts and transactions)
+   *
+   */
+  readStats(
+    req: operations.ReadStatsRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.ReadStatsResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.ReadStatsRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/stats",
+      req
+    );
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const r = client.request({
+      url: url,
+      method: "get",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.ReadStatsResponse =
+        new operations.ReadStatsResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.statsResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.StatsResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Revert a ledger transaction by its ID
+   */
+  revertTransaction(
+    req: operations.RevertTransactionRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.RevertTransactionResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.RevertTransactionRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/transactions/{txid}/revert",
+      req
+    );
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const r = client.request({
+      url: url,
+      method: "post",
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.RevertTransactionResponse =
+        new operations.RevertTransactionResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.transactionResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.TransactionResponse
+            );
+          }
+          break;
+        default:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.errorResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ErrorResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Execute a Numscript
+   *
+   * @remarks
+   * This route is deprecated, and has been merged into `POST /{ledger}/transactions`.
+   *
+   */
+  runScript(
+    req: operations.RunScriptRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.RunScriptResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.RunScriptRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/script",
+      req
+    );
+
+    let [reqBodyHeaders, reqBody]: [object, any] = [{}, {}];
+
+    try {
+      [reqBodyHeaders, reqBody] = utils.serializeRequestBody(
+        req,
+        "script",
+        "json"
+      );
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        throw new Error(`Error serializing request body, cause: ${e.message}`);
+      }
+    }
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const headers = { ...reqBodyHeaders, ...config?.headers };
+    const queryParams: string = utils.serializeQueryParams(req);
+    if (reqBody == null || Object.keys(reqBody).length === 0)
+      throw new Error("request body is required");
+
+    const r = client.request({
+      url: url + queryParams,
+      method: "post",
+      headers: headers,
+      data: reqBody,
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.RunScriptResponse =
+        new operations.RunScriptResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.scriptResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.ScriptResponse
+            );
+          }
+          break;
+      }
+
+      return res;
+    });
+  }
+
+  /**
+   * Update the mapping of a ledger
+   */
+  updateMapping(
+    req: operations.UpdateMappingRequest,
+    config?: AxiosRequestConfig
+  ): Promise<operations.UpdateMappingResponse> {
+    if (!(req instanceof utils.SpeakeasyBase)) {
+      req = new operations.UpdateMappingRequest(req);
+    }
+
+    const baseURL: string = this._serverURL;
+    const url: string = utils.generateURL(
+      baseURL,
+      "/api/ledger/{ledger}/mapping",
+      req
+    );
+
+    let [reqBodyHeaders, reqBody]: [object, any] = [{}, {}];
+
+    try {
+      [reqBodyHeaders, reqBody] = utils.serializeRequestBody(
+        req,
+        "mapping",
+        "json"
+      );
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        throw new Error(`Error serializing request body, cause: ${e.message}`);
+      }
+    }
+
+    const client: AxiosInstance = this._securityClient!;
+
+    const headers = { ...reqBodyHeaders, ...config?.headers };
+    if (reqBody == null || Object.keys(reqBody).length === 0)
+      throw new Error("request body is required");
+
+    const r = client.request({
+      url: url,
+      method: "put",
+      headers: headers,
+      data: reqBody,
+      ...config,
+    });
+
+    return r.then((httpRes: AxiosResponse) => {
+      const contentType: string = httpRes?.headers?.["content-type"] ?? "";
+
+      if (httpRes?.status == null)
+        throw new Error(`status code not found in response: ${httpRes}`);
+      const res: operations.UpdateMappingResponse =
+        new operations.UpdateMappingResponse({
+          statusCode: httpRes.status,
+          contentType: contentType,
+          rawResponse: httpRes,
+        });
+      switch (true) {
+        case httpRes?.status == 200:
+          if (utils.matchContentType(contentType, `application/json`)) {
+            res.mappingResponse = utils.deserializeJSONResponse(
+              httpRes?.data,
+              shared.MappingResponse
+            );
           }
           break;
         default:

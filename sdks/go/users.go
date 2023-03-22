@@ -5,9 +5,9 @@ package formance
 import (
 	"context"
 	"fmt"
-	"github.com/formancehq/formance/sdks/go/pkg/models/operations"
-	"github.com/formancehq/formance/sdks/go/pkg/models/shared"
-	"github.com/formancehq/formance/sdks/go/pkg/utils"
+	"github.com/formancehq/stack/sdks/go/pkg/models/operations"
+	"github.com/formancehq/stack/sdks/go/pkg/models/shared"
+	"github.com/formancehq/stack/sdks/go/pkg/utils"
 	"net/http"
 	"strings"
 )

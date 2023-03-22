@@ -74,7 +74,26 @@ if res.server_info is not None:
 
 ### ledger
 
+* `create_transactions` - Create a new batch of transactions to a ledger
+* `add_metadata_on_transaction` - Set the metadata of a transaction by its ID
+* `add_metadata_to_account` - Add metadata to an account
+* `count_accounts` - Count the accounts from a ledger
+* `count_transactions` - Count the transactions from a ledger
+* `create_transaction` - Create a new transaction to a ledger
+* `get_account` - Get account by its address
+* `get_balances` - Get the balances from a ledger's account
+* `get_balances_aggregated` - Get the aggregated balances from selected accounts
+* `get_info` - Show server information
 * `get_ledger_info` - Get information about a ledger
+* `get_mapping` - Get the mapping of a ledger
+* `get_transaction` - Get transaction from a ledger by its ID
+* `list_accounts` - List accounts from a ledger
+* `list_logs` - List the logs from a ledger
+* `list_transactions` - List transactions from a ledger
+* `read_stats` - Get statistics from a ledger
+* `revert_transaction` - Revert a ledger transaction by its ID
+* `run_script` - Execute a Numscript
+* `update_mapping` - Update the mapping of a ledger
 
 ### logs
 

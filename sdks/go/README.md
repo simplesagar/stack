@@ -15,7 +15,7 @@
 ## SDK Installation
 
 ```bash
-go get github.com/formancehq/formance/sdks/go
+go get github.com/formancehq/stack/sdks/go
 ```
 <!-- End SDK Installation -->
 
@@ -27,9 +27,9 @@ package main
 import (
     "context"
     "log"
-    "github.com/formancehq/formance/sdks/go"
-    "github.com/formancehq/formance/sdks/go/pkg/models/shared"
-    "github.com/formancehq/formance/sdks/go/pkg/models/operations"
+    "github.com/formancehq/stack/sdks/go"
+    "github.com/formancehq/stack/sdks/go/pkg/models/shared"
+    "github.com/formancehq/stack/sdks/go/pkg/models/operations"
 )
 
 func main() {
@@ -87,7 +87,26 @@ func main() {
 
 ### Ledger
 
+* `CreateTransactions` - Create a new batch of transactions to a ledger
+* `AddMetadataOnTransaction` - Set the metadata of a transaction by its ID
+* `AddMetadataToAccount` - Add metadata to an account
+* `CountAccounts` - Count the accounts from a ledger
+* `CountTransactions` - Count the transactions from a ledger
+* `CreateTransaction` - Create a new transaction to a ledger
+* `GetAccount` - Get account by its address
+* `GetBalances` - Get the balances from a ledger's account
+* `GetBalancesAggregated` - Get the aggregated balances from selected accounts
+* `GetInfo` - Show server information
 * `GetLedgerInfo` - Get information about a ledger
+* `GetMapping` - Get the mapping of a ledger
+* `GetTransaction` - Get transaction from a ledger by its ID
+* `ListAccounts` - List accounts from a ledger
+* `ListLogs` - List the logs from a ledger
+* `ListTransactions` - List transactions from a ledger
+* `ReadStats` - Get statistics from a ledger
+* `RevertTransaction` - Revert a ledger transaction by its ID
+* `RunScript` - Execute a Numscript
+* `UpdateMapping` - Update the mapping of a ledger
 
 ### Logs
 

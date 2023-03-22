@@ -1,4 +1,4 @@
-module github.com/formancehq/formance/sdks/go
+module github.com/formancehq/stack/sdks/go
 
 go 1.14
 
