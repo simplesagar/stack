@@ -2,6 +2,7 @@ package webhooks
 
 import (
 	fctl "github.com/formancehq/fctl/pkg"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -38,7 +39,10 @@ func NewDeactivateCommand() *cobra.Command {
 				return errors.Wrap(err, "creating stack client")
 			}
 
-			_, _, err = client.WebhooksApi.DeactivateConfig(cmd.Context(), args[0]).Execute()
+			request := operations.DeactivateConfigRequest{
+				ID: args[0],
+			}
+			_, err = client.Webhooks.DeactivateConfig(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrap(err, "deactivating config")
 			}

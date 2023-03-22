@@ -8,7 +8,11 @@ import (
 	"runtime/debug"
 
 	"github.com/formancehq/fctl/cmd/auth"
+	"github.com/formancehq/fctl/cmd/cloud"
 	"github.com/formancehq/fctl/cmd/ledger"
+	"github.com/formancehq/fctl/cmd/profiles"
+	"github.com/formancehq/fctl/cmd/search"
+	"github.com/formancehq/fctl/cmd/stack"
 	fctl "github.com/formancehq/fctl/pkg"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -33,16 +37,16 @@ func NewRootCommand() *cobra.Command {
 			NewVersionCommand(),
 			NewLoginCommand(),
 			NewPromptCommand(),
+			profiles.NewCommand(),
+			stack.NewCommand(),
+			cloud.NewCommand(),
 			auth.NewCommand(),
 			ledger.NewCommand(),
+			search.NewCommand(),
 			//payments.NewCommand(),
-			//profiles.NewCommand(),
-			//stack.NewCommand(),
-			//cloud.NewCommand(),
-			//search.NewCommand(),
-			//webhooks.NewCommand(),
 			//wallets.NewCommand(),
 			//orchestration.NewCommand(),
+			//webhooks.NewCommand(),
 		),
 		fctl.WithPersistentStringPFlag(fctl.ProfileFlag, "p", "", "config profile to use"),
 		fctl.WithPersistentStringPFlag(fctl.FileFlag, "c", fmt.Sprintf("%s/.formance/fctl.config", homedir), "Debug mode"),

@@ -2,6 +2,7 @@ package webhooks
 
 import (
 	fctl "github.com/formancehq/fctl/pkg"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -38,7 +39,10 @@ func NewDeleteCommand() *cobra.Command {
 				return errors.Wrap(err, "creating stack client")
 			}
 
-			_, err = webhookClient.WebhooksApi.DeleteConfig(cmd.Context(), args[0]).Execute()
+			request := operations.DeleteConfigRequest{
+				ID: args[0],
+			}
+			_, err = webhookClient.Webhooks.DeleteConfig(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrap(err, "deleting config")
 			}

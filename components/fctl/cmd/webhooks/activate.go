@@ -2,6 +2,7 @@ package webhooks
 
 import (
 	fctl "github.com/formancehq/fctl/pkg"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -38,7 +39,10 @@ func NewActivateCommand() *cobra.Command {
 				return errors.Wrap(err, "creating stack client")
 			}
 
-			_, _, err = client.WebhooksApi.ActivateConfig(cmd.Context(), args[0]).Execute()
+			request := operations.ActivateConfigRequest{
+				ID: args[0],
+			}
+			_, err = client.Webhooks.ActivateConfig(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrap(err, "activating config")
 			}

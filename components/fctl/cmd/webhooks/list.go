@@ -6,6 +6,7 @@ import (
 
 	fctl "github.com/formancehq/fctl/pkg"
 	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -36,17 +37,19 @@ func NewListCommand() *cobra.Command {
 				return errors.Wrap(err, "creating stack client")
 			}
 
-			res, _, err := webhookClient.WebhooksApi.GetManyConfigs(cmd.Context()).Execute()
+			request := operations.GetManyConfigsRequest{}
+			res, err := webhookClient.Webhooks.GetManyConfigs(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrap(err, "listing all configs")
 			}
 
+			// TODO: WebhooksConfig is missing ?
 			if err := pterm.DefaultTable.
 				WithHasHeader(true).
 				WithWriter(cmd.OutOrStdout()).
 				WithData(
 					fctl.Prepend(
-						fctl.Map(res.Cursor.Data,
+						fctl.Map(res.ConfigsResponse.Cursor.Data,
 							func(src formance.WebhooksConfig) []string {
 								return []string{
 									*src.Id,

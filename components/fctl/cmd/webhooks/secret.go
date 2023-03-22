@@ -2,7 +2,8 @@ package webhooks
 
 import (
 	fctl "github.com/formancehq/fctl/pkg"
-	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -44,19 +45,20 @@ func NewChangeSecretCommand() *cobra.Command {
 				secret = args[1]
 			}
 
-			res, _, err := client.WebhooksApi.
-				ChangeConfigSecret(cmd.Context(), args[0]).
-				ConfigChangeSecret(
-					formance.ConfigChangeSecret{
-						Secret: &secret,
-					}).
-				Execute()
+			request := operations.ChangeConfigSecretRequest{
+				ID: args[0],
+				ConfigChangeSecret: &shared.ConfigChangeSecret{
+					Secret: &secret,
+				},
+			}
+			res, err := client.Webhooks.ChangeConfigSecret(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrap(err, "changing secret")
 			}
 
 			pterm.Success.WithWriter(cmd.OutOrStdout()).Printfln(
-				"Config updated successfully with new secret: %s", *res.Data.Secret)
+				"Config updated successfully with new secret: %s", *res.ConfigResponse.Data)
+			// TODO: Need to return only secret
 			return nil
 		}),
 	)

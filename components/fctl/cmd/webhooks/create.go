@@ -4,7 +4,7 @@ import (
 	"net/url"
 
 	fctl "github.com/formancehq/fctl/pkg"
-	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -51,18 +51,19 @@ func NewCreateCommand() *cobra.Command {
 
 			secret := fctl.GetString(cmd, secretFlag)
 
-			res, _, err := client.WebhooksApi.InsertConfig(cmd.Context()).
-				ConfigUser(formance.ConfigUser{
-					Endpoint:   args[0],
-					EventTypes: args[1:],
-					Secret:     &secret,
-				}).Execute()
+			request := shared.ConfigUser{
+				Endpoint:   args[0],
+				EventTypes: args[1:],
+				Secret:     &secret,
+			}
+			res, err := client.Webhooks.InsertConfig(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrap(err, "inserting config")
 			}
 
 			pterm.Success.WithWriter(cmd.OutOrStdout()).Printfln(
-				"Config created successfully with ID: %s", *res.Data.Id)
+				"Config created successfully with ID: %s", &res.ConfigResponse.Data)
+			// TODO: Need to print only ID
 			return nil
 		}),
 	)
