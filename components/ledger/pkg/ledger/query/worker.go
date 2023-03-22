@@ -101,7 +101,7 @@ func (w *Worker) run() error {
 			if err := wl.store.UpdateNextLogID(w.ctx, wl.log.ID+1); err != nil {
 				logging.FromContext(w.ctx).Errorf("CQRS worker error: %s", err)
 
-				// TODO(polo/gfyrag): add indempotency tests
+				// TODO(polo/gfyrag): add idempotency tests
 				// Return the error to restart the worker
 				return err
 			}

@@ -16,6 +16,7 @@ import (
 	"github.com/formancehq/ledger/pkg/machine/script/compiler"
 	"github.com/formancehq/ledger/pkg/machine/vm"
 	"github.com/formancehq/ledger/pkg/storage"
+	"github.com/formancehq/stack/libs/go-libs/collections"
 	"github.com/pkg/errors"
 )
 
@@ -139,12 +140,17 @@ func (r *Runner) execute(ctx context.Context, script core.RunScript, dryRun bool
 		return nil, nil, vm.NewScriptError(vm.ScriptErrorCompilationFailed, errors.Wrap(err, "compiling numscript").Error())
 	}
 
-	involvedAccounts, err := prog.GetInvolvedAccounts(script.Vars)
+	involvedSources, err := prog.GetInvolvedSources(script.Vars)
 	if err != nil {
 		return nil, nil, vm.NewScriptError(vm.ScriptErrorCompilationFailed, err.Error())
 	}
+	involvedSources = collections.Filter(involvedSources, func(s string) bool {
+		return s != "world"
+	})
 
-	unlock, err := r.locker.Lock(ctx, r.store.Name(), involvedAccounts...)
+	unlock, err := r.locker.Lock(ctx, lock.Accounts{
+		Write: involvedSources,
+	})
 	if err != nil {
 		panic(err)
 	}

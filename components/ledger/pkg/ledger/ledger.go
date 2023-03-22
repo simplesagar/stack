@@ -161,7 +161,9 @@ func (l *Ledger) SaveMeta(ctx context.Context, targetType string, targetID inter
 	case core.MetaTargetTypeAccount:
 		// Machine can access account metadata, so store the metadata until CQRS compute final of the account
 		// The cache can still evict the account entry before CQRS part compute the view
-		unlock, err := l.locker.Lock(ctx, l.store.Name(), targetID.(string))
+		unlock, err := l.locker.Lock(ctx, lock.Accounts{
+			Write: []string{targetID.(string)},
+		})
 		if err != nil {
 			return err
 		}

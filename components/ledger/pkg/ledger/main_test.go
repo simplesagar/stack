@@ -38,17 +38,20 @@ func runOnLedger(t interface {
 	storageDriver := ledgertesting.StorageDriver(t)
 	require.NoError(t, storageDriver.Initialize(context.Background()))
 
-	name := uuid.New()
-	store, _, err := storageDriver.GetLedgerStore(context.Background(), name, true)
+	ledger := uuid.New()
+	store, _, err := storageDriver.GetLedgerStore(context.Background(), ledger, true)
 	require.NoError(t, err)
 
 	_, err = store.Initialize(context.Background())
 	require.NoError(t, err)
 
 	cacheManager := cache.NewManager(storageDriver)
-	ledgerCache, err := cacheManager.ForLedger(context.Background(), name)
+	ledgerCache, err := cacheManager.ForLedger(context.Background(), ledger)
 	require.NoError(t, err)
-	runner, err := runner.New(store, lock.NewInMemory(), ledgerCache, false)
+
+	locker := lock.NewDefaultLocker(ledger)
+
+	runner, err := runner.New(store, locker, ledgerCache, false)
 	require.NoError(t, err)
 
 	queryWorker := query.NewWorker(query.DefaultWorkerConfig, storageDriver, query.NewNoOpMonitor())
@@ -56,7 +59,7 @@ func runOnLedger(t interface {
 		require.NoError(t, queryWorker.Run(context.Background()))
 	}()
 
-	l := New(store, ledgerCache, runner, lock.NewInMemory(), queryWorker)
+	l := New(store, ledgerCache, runner, locker, queryWorker)
 	defer l.Close(context.Background())
 
 	f(l)

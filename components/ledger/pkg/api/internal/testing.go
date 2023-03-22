@@ -209,13 +209,19 @@ func RunTest(t *testing.T, callback func(api chi.Router, storageDriver storage.D
 	require.NoError(t, storageDriver.Initialize(context.Background()))
 
 	cacheManager := cache.NewManager(storageDriver)
-	lock := lock.NewInMemory()
+	lockManager := lock.NewManager()
+	lock := lockManager.ForLedger(TestingLedger)
 	runnerManager := runner.NewManager(storageDriver, lock, cacheManager, false)
 	queryWorker := query.NewWorker(query.DefaultWorkerConfig, storageDriver, query.NewNoOpMonitor())
 	go func() {
 		require.NoError(t, queryWorker.Run(context.Background()))
 	}()
-	resolver := ledger.NewResolver(storageDriver, lock, cacheManager, runnerManager, queryWorker)
+	//defer func() {
+	//	fmt.Println("stop query worker")
+	//	require.NoError(t, queryWorker.Stop(context.Background()))
+	//	fmt.Println("query worker stopped")
+	//}()
+	resolver := ledger.NewResolver(storageDriver, cacheManager, runnerManager, queryWorker, lockManager)
 
 	router := routes.NewRouter(storageDriver, "latest", resolver,
 		logging.FromContext(context.Background()), &health.HealthController{})

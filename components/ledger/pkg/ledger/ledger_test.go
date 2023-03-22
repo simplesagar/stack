@@ -184,7 +184,7 @@ func BenchmarkSequentialWrites(b *testing.B) {
 	cache, err := cacheManager.ForLedger(context.Background(), ledgerName)
 	require.NoError(b, err)
 
-	locker := lock.NewInMemory()
+	locker := lock.NewDefaultLocker(ledgerName)
 
 	runnerManager := runner.NewManager(driver, locker, cacheManager, false)
 	runner, err := runnerManager.ForLedger(context.Background(), ledgerName)
@@ -226,7 +226,7 @@ func BenchmarkParallelWrites(b *testing.B) {
 	cache, err := cacheManager.ForLedger(context.Background(), ledgerName)
 	require.NoError(b, err)
 
-	locker := lock.NewInMemory()
+	locker := lock.NewDefaultLocker(ledgerName)
 
 	runnerManager := runner.NewManager(driver, locker, cacheManager, false)
 	runner, err := runnerManager.ForLedger(context.Background(), ledgerName)

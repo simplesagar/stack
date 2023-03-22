@@ -178,7 +178,7 @@ func TestExecuteScript(t *testing.T) {
 			require.NoError(t, err)
 
 			cache := cache.New(store)
-			runner, err := New(store, lock.NewInMemory(), cache, false)
+			runner, err := New(store, lock.NewDefaultLocker(ledger), cache, false)
 			require.NoError(t, err)
 
 			if tc.setup != nil {

@@ -17,26 +17,26 @@ type Resolver struct {
 	storageDriver     storage.Driver
 	lock              sync.RWMutex
 	initializedStores map[string]struct{}
-	locker            lock.Locker
 	cacheManager      *cache.Manager
 	runnerManager     *runner.Manager
 	queryWorker       *query.Worker
+	lockerManager     *lock.Manager
 }
 
 func NewResolver(
 	storageDriver storage.Driver,
-	locker lock.Locker,
 	cacheManager *cache.Manager,
 	runnerManager *runner.Manager,
 	queryWorker *query.Worker,
+	lockerManager *lock.Manager,
 ) *Resolver {
 	return &Resolver{
 		storageDriver:     storageDriver,
 		cacheManager:      cacheManager,
 		runnerManager:     runnerManager,
 		initializedStores: map[string]struct{}{},
-		locker:            locker,
 		queryWorker:       queryWorker,
+		lockerManager:     lockerManager,
 	}
 }
 
@@ -72,7 +72,9 @@ func (r *Resolver) GetLedger(ctx context.Context, name string) (*Ledger, error) 
 		return nil, err
 	}
 
-	return New(store, cache, runner, r.locker, r.queryWorker), nil
+	locker := r.lockerManager.ForLedger(name)
+
+	return New(store, cache, runner, locker, r.queryWorker), nil
 }
 
 func Module(allowPastTimestamp bool) fx.Option {
