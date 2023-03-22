@@ -2,7 +2,7 @@ package users
 
 import (
 	fctl "github.com/formancehq/fctl/pkg"
-	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
@@ -33,19 +33,19 @@ func NewListCommand() *cobra.Command {
 				return err
 			}
 
-			listUsersResponse, _, err := client.UsersApi.ListUsers(cmd.Context()).Execute()
+			listUsersResponse, err := client.Auth.ListUsers(cmd.Context())
 			if err != nil {
 				return err
 			}
 
-			if len(listUsersResponse.Data) == 0 {
+			if len(listUsersResponse.ListUsersResponse.Data) == 0 {
 				fctl.Println("No users found.")
 				return nil
 			}
 
-			tableData := fctl.Map(listUsersResponse.Data, func(o formance.User) []string {
+			tableData := fctl.Map(listUsersResponse.ListUsersResponse.Data, func(o shared.User) []string {
 				return []string{
-					*o.Id,
+					*o.ID,
 					*o.Subject,
 					*o.Email,
 				}

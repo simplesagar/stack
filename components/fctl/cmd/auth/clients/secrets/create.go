@@ -2,7 +2,8 @@ package secrets
 
 import (
 	fctl "github.com/formancehq/fctl/pkg"
-	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
@@ -38,21 +39,22 @@ func NewCreateCommand() *cobra.Command {
 				return err
 			}
 
-			response, _, err := authClient.ClientsApi.
-				CreateSecret(cmd.Context(), args[0]).
-				Body(formance.SecretOptions{
+			request := operations.CreateSecretRequest{
+				ClientID: args[0],
+				CreateSecretRequest: &shared.CreateSecretRequest{
 					Name:     args[1],
 					Metadata: nil,
-				}).
-				Execute()
+				},
+			}
+			response, err := authClient.Auth.CreateSecret(cmd.Context(), request)
 			if err != nil {
 				return err
 			}
 
 			tableData := pterm.TableData{}
-			tableData = append(tableData, []string{pterm.LightCyan("ID"), response.Data.Id})
-			tableData = append(tableData, []string{pterm.LightCyan("Name"), response.Data.Name})
-			tableData = append(tableData, []string{pterm.LightCyan("Clear"), response.Data.Clear})
+			tableData = append(tableData, []string{pterm.LightCyan("ID"), response.CreateSecretResponse.Data.ID})
+			tableData = append(tableData, []string{pterm.LightCyan("Name"), response.CreateSecretResponse.Data.Name})
+			tableData = append(tableData, []string{pterm.LightCyan("Clear"), response.CreateSecretResponse.Data.Clear})
 			return pterm.DefaultTable.
 				WithWriter(cmd.OutOrStdout()).
 				WithData(tableData).

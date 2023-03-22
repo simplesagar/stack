@@ -2,6 +2,7 @@ package secrets
 
 import (
 	fctl "github.com/formancehq/fctl/pkg"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
@@ -37,9 +38,11 @@ func NewDeleteCommand() *cobra.Command {
 				return err
 			}
 
-			_, err = authClient.ClientsApi.
-				DeleteSecret(cmd.Context(), args[0], args[1]).
-				Execute()
+			request := operations.DeleteSecretRequest{
+				ClientID: args[0],
+				SecretID: args[1],
+			}
+			_, err = authClient.Auth.DeleteSecret(cmd.Context(), request)
 			if err != nil {
 				return err
 			}

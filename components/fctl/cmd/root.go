@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"runtime/debug"
 
+	"github.com/formancehq/fctl/cmd/auth"
 	"github.com/formancehq/fctl/cmd/ledger"
 	fctl "github.com/formancehq/fctl/pkg"
 	"github.com/pterm/pterm"
@@ -32,11 +33,11 @@ func NewRootCommand() *cobra.Command {
 			NewVersionCommand(),
 			NewLoginCommand(),
 			NewPromptCommand(),
+			auth.NewCommand(),
 			ledger.NewCommand(),
 			//payments.NewCommand(),
 			//profiles.NewCommand(),
 			//stack.NewCommand(),
-			//auth.NewCommand(),
 			//cloud.NewCommand(),
 			//search.NewCommand(),
 			//webhooks.NewCommand(),
@@ -55,7 +56,6 @@ func NewRootCommand() *cobra.Command {
 func Execute() {
 	defer func() {
 		if e := recover(); e != nil {
-			pterm.Error.WithWriter(os.Stderr).Printfln("%s", e)
 			debug.PrintStack()
 		}
 	}()

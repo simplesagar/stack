@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	fctl "github.com/formancehq/fctl/pkg"
-	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
@@ -35,14 +35,14 @@ func NewListCommand() *cobra.Command {
 				return err
 			}
 
-			clients, _, err := authClient.ClientsApi.ListClients(cmd.Context()).Execute()
+			clients, err := authClient.Auth.ListClients(cmd.Context())
 			if err != nil {
 				return err
 			}
 
-			tableData := fctl.Map(clients.Data, func(o formance.Client) []string {
+			tableData := fctl.Map(clients.ListClientsResponse.Data, func(o shared.Client) []string {
 				return []string{
-					o.Id,
+					o.ID,
 					o.Name,
 					func() string {
 						if o.Description == nil {
