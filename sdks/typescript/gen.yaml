@@ -1,0 +1,9 @@
+configVersion: 1.0.0
+generation:
+  telemetryEnabled: false
+  sdkClassName: SDK
+  sdkFlattening: true
+typescript:
+  version: 0.7.2
+  author: Formance
+  packageName: '@formance/formance-sdk'

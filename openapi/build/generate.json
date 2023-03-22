@@ -12,7 +12,7 @@
       "url": "https://avatars.githubusercontent.com/u/84325077?s=200&v=4",
       "altText": "Formance"
     },
-    "version": "develop"
+    "version": ""
   },
   "servers": [
     {
@@ -713,7 +713,7 @@
           {
             "name": "metadata",
             "in": "query",
-            "description": "Filter accounts by metadata key value pairs. Nested objects can be used as seen in the example below.",
+            "description": "Filter accounts by metadata key value pairs. The filter can be used like this metadata[key]=value1&metadata[a.nested.key]=value2",
             "style": "deepObject",
             "explode": true,
             "schema": {
@@ -781,6 +781,7 @@
           },
           {
             "name": "page_size",
+            "x-speakeasy-name-override": "pageSizeDeprecated",
             "in": "query",
             "description": "The maximum number of results to return per page.\nDeprecated, please use `pageSize` instead.\n",
             "example": 100,
@@ -853,6 +854,7 @@
           },
           {
             "name": "balance_operator",
+            "x-speakeasy-name-override": "balanceOperatorDeprecated",
             "in": "query",
             "description": "Operator used for the filtering of balances can be greater than/equal, less than/equal, greater than, less than, equal or not.\nDeprecated, please use `balanceOperator` instead.\n",
             "schema": {
@@ -1281,6 +1283,7 @@
           },
           {
             "name": "start_time",
+            "x-speakeasy-name-override": "startTimeDeprecated",
             "in": "query",
             "description": "Filter transactions that occurred after this timestamp.\nThe format is RFC3339 and is inclusive (for example, \"2023-01-02T15:04:01Z\" includes the first second of 4th minute).\nDeprecated, please use `startTime` instead.\n",
             "schema": {
@@ -1300,6 +1303,7 @@
           },
           {
             "name": "end_time",
+            "x-speakeasy-name-override": "endTimeDeprecated",
             "in": "query",
             "description": "Filter transactions that occurred before this timestamp.\nThe format is RFC3339 and is exclusive (for example, \"2023-01-02T15:04:01Z\" excludes the first second of 4th minute).\nDeprecated, please use `endTime` instead.\n",
             "schema": {
@@ -1379,6 +1383,7 @@
           },
           {
             "name": "page_size",
+            "x-speakeasy-name-override": "pageSizeDeprecated",
             "in": "query",
             "description": "The maximum number of results to return per page.\nDeprecated, please use `pageSize` instead.\n",
             "example": 100,
@@ -1447,6 +1452,7 @@
           },
           {
             "name": "start_time",
+            "x-speakeasy-name-override": "startTimeDeprecated",
             "in": "query",
             "description": "Filter transactions that occurred after this timestamp.\nThe format is RFC3339 and is inclusive (for example, \"2023-01-02T15:04:01Z\" includes the first second of 4th minute).\nDeprecated, please use `startTime` instead.\n",
             "schema": {
@@ -1466,6 +1472,7 @@
           },
           {
             "name": "end_time",
+            "x-speakeasy-name-override": "endTimeDeprecated",
             "in": "query",
             "description": "Filter transactions that occurred before this timestamp.\nThe format is RFC3339 and is exclusive (for example, \"2023-01-02T15:04:01Z\" excludes the first second of 4th minute).\nDeprecated, please use `endTime` instead.\n",
             "schema": {
@@ -1979,6 +1986,7 @@
           },
           {
             "name": "page_size",
+            "x-speakeasy-name-override": "pageSizeDeprecated",
             "in": "query",
             "description": "The maximum number of results to return per page.\nDeprecated, please use `pageSize` instead.\n",
             "example": 100,
@@ -2011,6 +2019,7 @@
           },
           {
             "name": "start_time",
+            "x-speakeasy-name-override": "startTimeDeprecated",
             "in": "query",
             "description": "Filter transactions that occurred after this timestamp.\nThe format is RFC3339 and is inclusive (for example, \"2023-01-02T15:04:01Z\" includes the first second of 4th minute).\nDeprecated, please use `startTime` instead.\n",
             "schema": {
@@ -2030,6 +2039,7 @@
           },
           {
             "name": "end_time",
+            "x-speakeasy-name-override": "endTimeDeprecated",
             "in": "query",
             "description": "Filter transactions that occurred before this timestamp.\nThe format is RFC3339 and is exclusive (for example, \"2023-01-02T15:04:01Z\" excludes the first second of 4th minute).\nDeprecated, please use `endTime` instead.\n",
             "schema": {
@@ -7027,7 +7037,7 @@
             "type": "string"
           },
           "terminated": {
-            "type": "bool"
+            "type": "boolean"
           },
           "startedAt": {
             "type": "string",
@@ -7068,7 +7078,7 @@
             "type": "string"
           },
           "terminated": {
-            "type": "bool"
+            "type": "boolean"
           },
           "startedAt": {
             "type": "string",

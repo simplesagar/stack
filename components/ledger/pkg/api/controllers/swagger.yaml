@@ -124,6 +124,7 @@ paths:
             maximum: 1000
             default: 15
         - name: page_size
+          x-speakeasy-name-override: pageSizeDeprecated
           in: query
           description: |
             The maximum number of results to return per page.
@@ -174,6 +175,7 @@ paths:
             enum: [gte, lte, gt, lt, e, ne]
             example: gte
         - name: balance_operator
+          x-speakeasy-name-override: balanceOperatorDeprecated
           in: query
           description: |
             Operator used for the filtering of balances can be greater than/equal, less than/equal, greater than, less than, equal or not.
@@ -484,6 +486,7 @@ paths:
             type: string
             format: date-time
         - name: start_time
+          x-speakeasy-name-override: startTimeDeprecated
           in: query
           description: |
             Filter transactions that occurred after this timestamp.
@@ -502,6 +505,7 @@ paths:
             type: string
             format: date-time
         - name: end_time
+          x-speakeasy-name-override: endTimeDeprecated
           in: query
           description: |
             Filter transactions that occurred before this timestamp.
@@ -562,6 +566,7 @@ paths:
             maximum: 1000
             default: 15
         - name: page_size
+          x-speakeasy-name-override: pageSizeDeprecated
           in: query
           description: |
             The maximum number of results to return per page.
@@ -615,6 +620,7 @@ paths:
             type: string
             format: date-time
         - name: start_time
+          x-speakeasy-name-override: startTimeDeprecated
           in: query
           description: |
             Filter transactions that occurred after this timestamp.
@@ -633,6 +639,7 @@ paths:
             type: string
             format: date-time
         - name: end_time
+          x-speakeasy-name-override: endTimeDeprecated
           in: query
           description: |
             Filter transactions that occurred before this timestamp.
@@ -1002,6 +1009,7 @@ paths:
             maximum: 1000
             default: 15
         - name: page_size
+          x-speakeasy-name-override: pageSizeDeprecated
           in: query
           description: |
             The maximum number of results to return per page.
@@ -1030,6 +1038,7 @@ paths:
             type: string
             format: date-time
         - name: start_time
+          x-speakeasy-name-override: startTimeDeprecated
           in: query
           description: |
             Filter transactions that occurred after this timestamp.
@@ -1048,6 +1057,7 @@ paths:
             type: string
             format: date-time
         - name: end_time
+          x-speakeasy-name-override: endTimeDeprecated
           in: query
           description: |
             Filter transactions that occurred before this timestamp.

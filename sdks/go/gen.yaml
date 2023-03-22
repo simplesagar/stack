@@ -1,0 +1,9 @@
+configVersion: 1.0.0
+generation:
+  telemetryEnabled: false
+  sdkClassName: Formance
+  sdkFlattening: true
+go:
+  version: ""
+  author: Formance
+  packageName: github.com/formancehq/formance/sdks/go
