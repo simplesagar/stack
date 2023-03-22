@@ -49,7 +49,7 @@ func NewModulrCommand() *cobra.Command {
 				endpoint = &e
 			}
 
-			_, err = paymentsClient.PaymentsApi.InstallConnector(cmd.Context(), internal.ModulrConnector).
+			_, err = paymentsClient.Payments.InstallConnector(cmd.Context(), internal.ModulrConnector).
 				ConnectorConfig(formance.ConnectorConfig{
 					ModulrConfig: &formance.ModulrConfig{
 						ApiKey:    args[0],

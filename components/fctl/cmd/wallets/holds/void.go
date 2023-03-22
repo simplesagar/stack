@@ -2,6 +2,7 @@ package holds
 
 import (
 	fctl "github.com/formancehq/fctl/pkg"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -33,7 +34,10 @@ func NewVoidCommand() *cobra.Command {
 				return errors.Wrap(err, "creating stack client")
 			}
 
-			_, err = stackClient.WalletsApi.VoidHold(cmd.Context(), args[0]).Execute()
+			request := operations.VoidHoldRequest{
+				HoldID: args[0],
+			}
+			_, err = stackClient.Wallets.VoidHold(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrap(err, "listing wallets")
 			}

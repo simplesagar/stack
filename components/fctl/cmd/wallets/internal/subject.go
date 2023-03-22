@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func ParseSubject(subject string, cmd *cobra.Command, client *formance.APIClient) (*formance.Subject, error) {
+func ParseSubject(subject string, cmd *cobra.Command, client *formance.Formance) (*formance.Subject, error) {
 	var err error
 	switch {
 	case strings.HasPrefix(subject, "wallet="):

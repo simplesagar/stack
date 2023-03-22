@@ -3,7 +3,8 @@ package holds
 import (
 	"github.com/formancehq/fctl/cmd/wallets/internal"
 	fctl "github.com/formancehq/fctl/pkg"
-	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -51,16 +52,16 @@ func NewListCommand() *cobra.Command {
 				return err
 			}
 
-			res, _, err := client.WalletsApi.
-				GetHolds(cmd.Context()).
-				Metadata(metadata).
-				WalletID(walletID).
-				Execute()
+			request := operations.GetHoldsRequest{
+				WalletID: &walletID,
+				Metadata: metadata,
+			}
+			res, err := client.Wallets.GetHolds(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrap(err, "listing wallets")
 			}
 
-			if len(res.Cursor.Data) == 0 {
+			if len(res.GetHoldsResponse.Cursor.Data) == 0 {
 				fctl.Println("No holds found.")
 				return nil
 			}
@@ -70,10 +71,10 @@ func NewListCommand() *cobra.Command {
 				WithWriter(cmd.OutOrStdout()).
 				WithData(
 					fctl.Prepend(
-						fctl.Map(res.Cursor.Data,
-							func(src formance.Hold) []string {
+						fctl.Map(res.GetHoldsResponse.Cursor.Data,
+							func(src shared.Hold) []string {
 								return []string{
-									src.Id,
+									src.ID,
 									src.WalletID,
 									src.Description,
 									fctl.MetadataAsShortString(src.Metadata),

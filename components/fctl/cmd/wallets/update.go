@@ -48,7 +48,7 @@ func NewUpdateCommand() *cobra.Command {
 				return err
 			}
 
-			_, err = client.WalletsApi.UpdateWallet(cmd.Context(), args[0]).UpdateWalletRequest(formance.UpdateWalletRequest{
+			_, err = client.Wallets.UpdateWallet(cmd.Context(), args[0]).UpdateWalletRequest(formance.UpdateWalletRequest{
 				Metadata: metadata,
 			}).Execute()
 			if err != nil {

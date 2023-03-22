@@ -6,7 +6,8 @@ import (
 
 	"github.com/formancehq/fctl/cmd/wallets/internal"
 	fctl "github.com/formancehq/fctl/pkg"
-	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -43,17 +44,20 @@ func NewListCommand() *cobra.Command {
 				return err
 			}
 
-			res, _, err := client.WalletsApi.GetTransactions(cmd.Context()).WalletID(walletID).Execute()
+			request := operations.GetTransactionsRequest{
+				WalletID: &walletID,
+			}
+			res, err := client.Wallets.GetTransactions(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrap(err, "listing wallets")
 			}
 
-			if len(res.Cursor.Data) == 0 {
+			if len(res.GetTransactionsResponse.Cursor.Data) == 0 {
 				fctl.Println("No transactions found.")
 				return nil
 			}
 
-			tableData := fctl.Map(res.Cursor.Data, func(tx formance.WalletsTransaction) []string {
+			tableData := fctl.Map(res.GetTransactionsResponse.Cursor.Data, func(tx shared.WalletsTransaction) []string {
 				return []string{
 					fmt.Sprintf("%d", tx.Txid),
 					tx.Timestamp.Format(time.RFC3339),

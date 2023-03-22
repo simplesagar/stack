@@ -2,7 +2,7 @@ package wallets
 
 import (
 	fctl "github.com/formancehq/fctl/pkg"
-	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -48,16 +48,17 @@ func NewCreateCommand() *cobra.Command {
 				return err
 			}
 
-			res, _, err := client.WalletsApi.CreateWallet(cmd.Context()).CreateWalletRequest(formance.CreateWalletRequest{
+			request := shared.CreateWalletRequest{
 				Name:     args[0],
 				Metadata: metadata,
-			}).Execute()
+			}
+			res, err := client.Wallets.CreateWallet(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrap(err, "Creating wallets")
 			}
 
 			pterm.Success.WithWriter(cmd.OutOrStdout()).Printfln(
-				"Wallet created successfully with ID: %s", res.Data.Id)
+				"Wallet created successfully with ID: %s", res.CreateWalletResponse.Data.ID)
 			return nil
 		}),
 	)

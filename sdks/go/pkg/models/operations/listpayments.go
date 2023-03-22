@@ -21,6 +21,7 @@ type ListPaymentsRequest struct {
 	Sort []string `queryParam:"style=form,explode=true,name=sort"`
 }
 
+
 type ListPaymentsResponse struct {
 	ContentType string
 	// OK

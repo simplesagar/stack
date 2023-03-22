@@ -2,7 +2,8 @@ package holds
 
 import (
 	fctl "github.com/formancehq/fctl/pkg"
-	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -43,11 +44,14 @@ func NewConfirmCommand() *cobra.Command {
 			final := fctl.GetBool(cmd, finalFlag)
 			amount := int64(fctl.GetInt(cmd, amountFlag))
 
-			_, err = stackClient.WalletsApi.ConfirmHold(cmd.Context(), args[0]).
-				ConfirmHoldRequest(formance.ConfirmHoldRequest{
+			request := operations.ConfirmHoldRequest{
+				HoldID: args[0],
+				ConfirmHoldRequest: &shared.ConfirmHoldRequest{
 					Amount: &amount,
 					Final:  &final,
-				}).Execute()
+				},
+			}
+			_, err = stackClient.Wallets.ConfirmHold(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrap(err, "listing wallets")
 			}

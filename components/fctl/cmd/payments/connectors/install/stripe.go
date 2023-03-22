@@ -43,7 +43,7 @@ func NewStripeCommand() *cobra.Command {
 				return err
 			}
 
-			_, err = paymentsClient.PaymentsApi.InstallConnector(cmd.Context(), internal.StripeConnector).
+			_, err = paymentsClient.Payments.InstallConnector(cmd.Context(), internal.StripeConnector).
 				ConnectorConfig(formance.ConnectorConfig{
 					StripeConfig: &formance.StripeConfig{
 						ApiKey: args[0],

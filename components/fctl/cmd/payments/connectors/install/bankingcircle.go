@@ -4,6 +4,7 @@ import (
 	"github.com/formancehq/fctl/cmd/payments/connectors/internal"
 	fctl "github.com/formancehq/fctl/pkg"
 	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -47,16 +48,18 @@ func NewBankingCircleCommand() *cobra.Command {
 				return err
 			}
 
-			_, err = paymentsClient.PaymentsApi.InstallConnector(cmd.Context(), internal.BankingCircleConnector).
-				ConnectorConfig(formance.ConnectorConfig{
+			request := operations.InstallConnectorRequest{
+				Connector: internal.BankingCircleConnector,
+				RequestBody: &formance.ConnectorConfig{
 					BankingCircleConfig: &formance.BankingCircleConfig{
 						Username:              args[0],
 						Password:              args[1],
 						Endpoint:              fctl.GetString(cmd, endpointFlag),
 						AuthorizationEndpoint: fctl.GetString(cmd, authorizationEndpointFlag),
 					},
-				}).
-				Execute()
+				},
+			}
+			_, err = paymentsClient.Payments.InstallConnector(cmd.Context(), request)
 
 			pterm.Success.WithWriter(cmd.OutOrStdout()).Printfln("Connector installed!")
 

@@ -49,7 +49,7 @@ func NewShowCommand() *cobra.Command {
 				return errors.New("You need to specify wallet id using --id or --name flags")
 			}
 
-			res, _, err := client.WalletsApi.GetWallet(cmd.Context(), walletID).Execute()
+			res, _, err := client.Wallets.GetWallet(cmd.Context(), walletID).Execute()
 			if err != nil {
 				return errors.Wrap(err, "Creating wallets")
 			}

@@ -6,6 +6,8 @@ import (
 	"github.com/formancehq/fctl/cmd/wallets/internal"
 	fctl "github.com/formancehq/fctl/pkg"
 	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pkg/errors"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -82,15 +84,19 @@ func NewCreditWalletCommand() *cobra.Command {
 				sources = append(sources, *source)
 			}
 
-			_, err = client.WalletsApi.CreditWallet(cmd.Context(), walletID).CreditWalletRequest(formance.CreditWalletRequest{
-				Amount: formance.Monetary{
-					Asset:  asset,
-					Amount: amount,
+			request := operations.CreditWalletRequest{
+				ID: walletID,
+				CreditWalletRequest: &shared.CreditWalletRequest{
+					Amount: shared.Monetary{
+						Asset:  asset,
+						Amount: amount,
+					},
+					Metadata: metadata,
+					Sources:  sources,
+					Balance:  formance.String(fctl.GetString(cmd, balanceFlag)),
 				},
-				Metadata: metadata,
-				Sources:  sources,
-				Balance:  formance.PtrString(fctl.GetString(cmd, balanceFlag)),
-			}).Execute()
+			}
+			_, err = client.Wallets.CreditWallet(cmd.Context(), request)
 			if err != nil {
 				return err
 			}

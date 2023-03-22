@@ -4,6 +4,8 @@ import (
 	"github.com/formancehq/fctl/cmd/payments/connectors/internal"
 	fctl "github.com/formancehq/fctl/pkg"
 	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
@@ -36,21 +38,24 @@ func NewGetConfigCommand() *cobra.Command {
 				return err
 			}
 
-			connectorConfig, _, err := client.PaymentsApi.ReadConnectorConfig(cmd.Context(), formance.Connector(args[0])).Execute()
+			request := operations.ReadConnectorConfigRequest{
+				Connector: shared.ConnectorEnum(args[0]),
+			}
+			connectorConfig, err := client.Payments.ReadConnectorConfig(cmd.Context(), request)
 			if err != nil {
 				return fctl.WrapError(err, "reading connector config")
 			}
 			switch args[0] {
 			case internal.StripeConnector:
-				err = displayStripeConfig(cmd, connectorConfig.Data)
+				err = displayStripeConfig(cmd, connectorConfig.ConnectorConfigResponse.Data)
 			case internal.ModulrConnector:
-				err = displayModulrConfig(cmd, connectorConfig.Data)
+				err = displayModulrConfig(cmd, connectorConfig.ConnectorConfigResponse.Data)
 			case internal.BankingCircleConnector:
-				err = displayBankingCircleConfig(cmd, connectorConfig.Data)
+				err = displayBankingCircleConfig(cmd, connectorConfig.ConnectorConfigResponse.Data)
 			case internal.CurrencyCloudConnector:
-				err = displayCurrencyCloudConfig(cmd, connectorConfig.Data)
+				err = displayCurrencyCloudConfig(cmd, connectorConfig.ConnectorConfigResponse.Data)
 			case internal.WiseConnector:
-				err = displayWiseConfig(cmd, connectorConfig.Data)
+				err = displayWiseConfig(cmd, connectorConfig.ConnectorConfigResponse.Data)
 			default:
 				pterm.Error.WithWriter(cmd.OutOrStderr()).Printfln("Connection unknown.")
 			}
@@ -59,7 +64,7 @@ func NewGetConfigCommand() *cobra.Command {
 	)
 }
 
-func displayStripeConfig(cmd *cobra.Command, connectorConfig formance.ConnectorConfig) error {
+func displayStripeConfig(cmd *cobra.Command, connectorConfig shared.ConnectorConfig) error {
 	config := connectorConfig.StripeConfig
 
 	tableData := pterm.TableData{}

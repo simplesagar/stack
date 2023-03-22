@@ -48,7 +48,7 @@ func NewCurrencyCloudCommand() *cobra.Command {
 				endpoint = &e
 			}
 
-			_, err = paymentsClient.PaymentsApi.InstallConnector(cmd.Context(), internal.CurrencyCloudConnector).
+			_, err = paymentsClient.Payments.InstallConnector(cmd.Context(), internal.CurrencyCloudConnector).
 				ConnectorConfig(formance.ConnectorConfig{
 					CurrencyCloudConfig: &formance.CurrencyCloudConfig{
 						ApiKey:   args[1],

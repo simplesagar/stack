@@ -38,7 +38,7 @@ func NewWiseCommand() *cobra.Command {
 				return err
 			}
 
-			_, err = paymentsClient.PaymentsApi.InstallConnector(cmd.Context(), internal.WiseConnector).
+			_, err = paymentsClient.Payments.InstallConnector(cmd.Context(), internal.WiseConnector).
 				ConnectorConfig(formance.ConnectorConfig{
 					WiseConfig: &formance.WiseConfig{
 						ApiKey: args[1],

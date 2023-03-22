@@ -115,7 +115,7 @@ func printMetadata(metadata map[string]any) []pterm.BulletListItem {
 	return ret
 }
 
-func printStage(cmd *cobra.Command, i int, client *formance.APIClient, id string, history formance.WorkflowInstanceHistory) error {
+func printStage(cmd *cobra.Command, i int, client *formance.Formance, id string, history formance.WorkflowInstanceHistory) error {
 	cyanWriter := fctl.BasicTextCyan
 	defaultWriter := fctl.BasicText
 

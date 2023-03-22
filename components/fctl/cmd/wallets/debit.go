@@ -86,7 +86,7 @@ func NewDebitWalletCommand() *cobra.Command {
 				}
 			}
 
-			hold, _, err := client.WalletsApi.DebitWallet(cmd.Context(), walletID).DebitWalletRequest(formance.DebitWalletRequest{
+			hold, _, err := client.Wallets.DebitWallet(cmd.Context(), walletID).DebitWalletRequest(formance.DebitWalletRequest{
 				Amount: formance.Monetary{
 					Asset:  asset,
 					Amount: amount,
