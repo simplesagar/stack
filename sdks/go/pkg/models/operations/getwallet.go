@@ -3,7 +3,7 @@
 package operations
 
 import (
-	"github.com/formancehq/stack/sdks/go/pkg/models/shared"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"net/http"
 )
 

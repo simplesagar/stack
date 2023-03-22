@@ -4,6 +4,7 @@
 
 import * as utils from "../internal/utils";
 import { Accounts } from "./accounts";
+import { Auth } from "./auth";
 import { Balances } from "./balances";
 import { Clients } from "./clients";
 import { Ledger } from "./ledger";
@@ -74,6 +75,7 @@ export type SDKProps = {
  */
 export class SDK {
   public accounts: Accounts;
+  public auth: Auth;
   public balances: Balances;
   public clients: Clients;
   public ledger: Ledger;
@@ -117,6 +119,15 @@ export class SDK {
     }
 
     this.accounts = new Accounts(
+      this._defaultClient,
+      this._securityClient,
+      this._serverURL,
+      this._language,
+      this._sdkVersion,
+      this._genVersion
+    );
+
+    this.auth = new Auth(
       this._defaultClient,
       this._securityClient,
       this._serverURL,

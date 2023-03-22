@@ -7,7 +7,8 @@ import (
 
 	"github.com/formancehq/fctl/cmd/ledger/internal"
 	fctl "github.com/formancehq/fctl/pkg"
-	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -104,30 +105,30 @@ func NewCommand() *cobra.Command {
 				return err
 			}
 
-			ledger := fctl.GetString(cmd, internal.LedgerFlag)
-			response, _, err := client.ScriptApi.
-				RunScript(cmd.Context(), ledger).
-				Script(formance.Script{
+			request := operations.RunScriptRequest{
+				Ledger: fctl.GetString(cmd, internal.LedgerFlag),
+				Script: shared.Script{
 					Plain:     script,
 					Metadata:  metadata,
 					Vars:      vars,
 					Reference: &reference,
-				}).
-				Execute()
+				},
+			}
+			response, err := client.Ledger.RunScript(cmd.Context(), request)
 			if err != nil {
 				return err
 			}
 			if err != nil {
 				return errors.Wrapf(err, "executing numscript")
 			}
-			if response.ErrorCode != nil && *response.ErrorCode != "" {
-				if response.ErrorMessage != nil {
-					return errors.New(*response.ErrorMessage)
+			if response.ScriptResponse.ErrorCode != nil && *response.ScriptResponse.ErrorCode != "" {
+				if response.ScriptResponse.ErrorMessage != nil {
+					return errors.New(*response.ScriptResponse.ErrorMessage)
 				}
-				return errors.New(string(*response.ErrorCode))
+				return errors.New(string(*response.ScriptResponse.ErrorCode))
 			}
 
-			return internal.PrintTransaction(cmd.OutOrStdout(), *response.Transaction)
+			return internal.PrintTransaction(cmd.OutOrStdout(), *response.ScriptResponse.Transaction)
 		}),
 	)
 }

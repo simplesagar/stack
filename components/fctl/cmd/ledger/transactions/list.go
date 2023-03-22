@@ -7,6 +7,8 @@ import (
 	internal "github.com/formancehq/fctl/cmd/ledger/internal"
 	fctl "github.com/formancehq/fctl/pkg"
 	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
@@ -82,29 +84,30 @@ func NewListCommand() *cobra.Command {
 				}
 			}
 
-			ledger := fctl.GetString(cmd, internal.LedgerFlag)
-			rsp, _, err := ledgerClient.TransactionsApi.
-				ListTransactions(cmd.Context(), ledger).
-				PageSize(int64(fctl.GetInt(cmd, pageSizeFlag))).
-				Reference(fctl.GetString(cmd, referenceFlag)).
-				Account(fctl.GetString(cmd, accountFlag)).
-				Destination(fctl.GetString(cmd, destinationFlag)).
-				Source(fctl.GetString(cmd, sourceFlag)).
-				After(fctl.GetString(cmd, afterFlag)).
-				EndTime(endTime).
-				StartTime(startTime).
-				Metadata(metadata).
-				Execute()
+			pageSize := int64(fctl.GetInt(cmd, pageSizeFlag))
+			request := operations.ListTransactionsRequest{
+				Ledger:      fctl.GetString(cmd, internal.LedgerFlag),
+				PageSize:    &pageSize,
+				Reference:   formance.String(fctl.GetString(cmd, referenceFlag)),
+				Account:     formance.String(fctl.GetString(cmd, accountFlag)),
+				Destination: formance.String(fctl.GetString(cmd, destinationFlag)),
+				Source:      formance.String(fctl.GetString(cmd, sourceFlag)),
+				After:       formance.String(fctl.GetString(cmd, afterFlag)),
+				StartTime:   &startTime,
+				EndTime:     &endTime,
+				Metadata:    metadata,
+			}
+			rsp, err := ledgerClient.Ledger.ListTransactions(cmd.Context(), request)
 			if err != nil {
 				return err
 			}
 
-			if len(rsp.Cursor.Data) == 0 {
+			if len(rsp.TransactionsCursorResponse.Cursor.Data) == 0 {
 				fctl.Println("No transactions found.")
 				return nil
 			}
 
-			tableData := fctl.Map(rsp.Cursor.Data, func(tx formance.Transaction) []string {
+			tableData := fctl.Map(rsp.TransactionsCursorResponse.Cursor.Data, func(tx shared.Transaction) []string {
 				return []string{
 					fmt.Sprintf("%d", tx.Txid),
 					func() string {

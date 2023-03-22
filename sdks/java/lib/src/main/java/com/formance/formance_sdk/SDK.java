@@ -45,6 +45,7 @@ public class SDK {
 	
   	
     public Accounts accounts;
+    public Auth auth;
     public Balances balances;
     public Clients clients;
     public Ledger ledger;
@@ -167,6 +168,15 @@ public class SDK {
 		
 		
 		this.accounts = new Accounts(
+			this._defaultClient,
+			this._securityClient,
+			this._serverUrl,
+			this._language,
+			this._sdkVersion,
+			this._genVersion
+		);
+		
+		this.auth = new Auth(
 			this._defaultClient,
 			this._securityClient,
 			this._serverUrl,

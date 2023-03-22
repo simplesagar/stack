@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-type payments struct {
+type auth struct {
 	defaultClient  HTTPClient
 	securityClient HTTPClient
 	serverURL      string
@@ -21,8 +21,8 @@ type payments struct {
 	genVersion     string
 }
 
-func newPayments(defaultClient, securityClient HTTPClient, serverURL, language, sdkVersion, genVersion string) *payments {
-	return &payments{
+func newAuth(defaultClient, securityClient HTTPClient, serverURL, language, sdkVersion, genVersion string) *auth {
+	return &auth{
 		defaultClient:  defaultClient,
 		securityClient: securityClient,
 		serverURL:      serverURL,
@@ -32,19 +32,86 @@ func newPayments(defaultClient, securityClient HTTPClient, serverURL, language, 
 	}
 }
 
-// ConnectorsStripeTransfer - Transfer funds between Stripe accounts
-// Execute a transfer between two Stripe accounts.
-func (s *payments) ConnectorsStripeTransfer(ctx context.Context, request shared.StripeTransferRequest) (*operations.ConnectorsStripeTransferResponse, error) {
+// AddScopeToClient - Add scope to client
+func (s *auth) AddScopeToClient(ctx context.Context, request operations.AddScopeToClientRequest) (*operations.AddScopeToClientResponse, error) {
 	baseURL := s.serverURL
-	url := strings.TrimSuffix(baseURL, "/") + "/api/payments/connectors/stripe/transfers"
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/clients/{clientId}/scopes/{scopeId}", request, nil)
+
+	req, err := http.NewRequestWithContext(ctx, "PUT", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.AddScopeToClientResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 204:
+	}
+
+	return res, nil
+}
+
+// AddTransientScope - Add a transient scope to a scope
+// Add a transient scope to a scope
+func (s *auth) AddTransientScope(ctx context.Context, request operations.AddTransientScopeRequest) (*operations.AddTransientScopeResponse, error) {
+	baseURL := s.serverURL
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/scopes/{scopeId}/transient/{transientScopeId}", request, nil)
+
+	req, err := http.NewRequestWithContext(ctx, "PUT", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.AddTransientScopeResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 204:
+	}
+
+	return res, nil
+}
+
+// CreateClient - Create client
+func (s *auth) CreateClient(ctx context.Context, request shared.CreateClientRequest) (*operations.CreateClientResponse, error) {
+	baseURL := s.serverURL
+	url := strings.TrimSuffix(baseURL, "/") + "/api/auth/clients"
 
 	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, "Request", "json")
 	if err != nil {
 		return nil, fmt.Errorf("error serializing request body: %w", err)
 	}
-	if bodyReader == nil {
-		return nil, fmt.Errorf("request body is required")
-	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bodyReader)
 	if err != nil {
@@ -66,40 +133,37 @@ func (s *payments) ConnectorsStripeTransfer(ctx context.Context, request shared.
 
 	contentType := httpRes.Header.Get("Content-Type")
 
-	res := &operations.ConnectorsStripeTransferResponse{
+	res := &operations.CreateClientResponse{
 		StatusCode:  httpRes.StatusCode,
 		ContentType: contentType,
 		RawResponse: httpRes,
 	}
 	switch {
-	case httpRes.StatusCode == 200:
+	case httpRes.StatusCode == 201:
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
-			var out map[string]interface{}
+			var out *shared.CreateClientResponse
 			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
 				return nil, err
 			}
 
-			res.StripeTransferResponse = out
+			res.CreateClientResponse = out
 		}
 	}
 
 	return res, nil
 }
 
-// ConnectorsTransfer - Transfer funds between Connector accounts
-// Execute a transfer between two accounts.
-func (s *payments) ConnectorsTransfer(ctx context.Context, request operations.ConnectorsTransferRequest) (*operations.ConnectorsTransferResponse, error) {
+// CreateScope - Create scope
+// Create scope
+func (s *auth) CreateScope(ctx context.Context, request shared.CreateScopeRequest) (*operations.CreateScopeResponse, error) {
 	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/api/payments/connectors/{connector}/transfers", request, nil)
+	url := strings.TrimSuffix(baseURL, "/") + "/api/auth/scopes"
 
-	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, "TransferRequest", "json")
+	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, "Request", "json")
 	if err != nil {
 		return nil, fmt.Errorf("error serializing request body: %w", err)
 	}
-	if bodyReader == nil {
-		return nil, fmt.Errorf("request body is required")
-	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bodyReader)
 	if err != nil {
@@ -121,129 +185,36 @@ func (s *payments) ConnectorsTransfer(ctx context.Context, request operations.Co
 
 	contentType := httpRes.Header.Get("Content-Type")
 
-	res := &operations.ConnectorsTransferResponse{
+	res := &operations.CreateScopeResponse{
 		StatusCode:  httpRes.StatusCode,
 		ContentType: contentType,
 		RawResponse: httpRes,
 	}
 	switch {
-	case httpRes.StatusCode == 200:
+	case httpRes.StatusCode == 201:
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.TransferResponse
+			var out *shared.CreateScopeResponse
 			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
 				return nil, err
 			}
 
-			res.TransferResponse = out
+			res.CreateScopeResponse = out
 		}
 	}
 
 	return res, nil
 }
 
-// GetConnectorTask - Read a specific task of the connector
-// Get a specific task associated to the connector.
-func (s *payments) GetConnectorTask(ctx context.Context, request operations.GetConnectorTaskRequest) (*operations.GetConnectorTaskResponse, error) {
+// CreateSecret - Add a secret to a client
+func (s *auth) CreateSecret(ctx context.Context, request operations.CreateSecretRequest) (*operations.CreateSecretResponse, error) {
 	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/api/payments/connectors/{connector}/tasks/{taskId}", request, nil)
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/clients/{clientId}/secrets", request, nil)
 
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	client := s.securityClient
-
-	httpRes, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	if httpRes == nil {
-		return nil, fmt.Errorf("error sending request: no response")
-	}
-	defer httpRes.Body.Close()
-
-	contentType := httpRes.Header.Get("Content-Type")
-
-	res := &operations.GetConnectorTaskResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: contentType,
-		RawResponse: httpRes,
-	}
-	switch {
-	case httpRes.StatusCode == 200:
-		switch {
-		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.TaskResponse
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
-				return nil, err
-			}
-
-			res.TaskResponse = out
-		}
-	}
-
-	return res, nil
-}
-
-// GetPayment - Get a payment
-func (s *payments) GetPayment(ctx context.Context, request operations.GetPaymentRequest) (*operations.GetPaymentResponse, error) {
-	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/api/payments/payments/{paymentId}", request, nil)
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	client := s.securityClient
-
-	httpRes, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	if httpRes == nil {
-		return nil, fmt.Errorf("error sending request: no response")
-	}
-	defer httpRes.Body.Close()
-
-	contentType := httpRes.Header.Get("Content-Type")
-
-	res := &operations.GetPaymentResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: contentType,
-		RawResponse: httpRes,
-	}
-	switch {
-	case httpRes.StatusCode == 200:
-		switch {
-		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.PaymentResponse
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
-				return nil, err
-			}
-
-			res.PaymentResponse = out
-		}
-	}
-
-	return res, nil
-}
-
-// InstallConnector - Install a connector
-// Install a connector by its name and config.
-func (s *payments) InstallConnector(ctx context.Context, request operations.InstallConnectorRequest) (*operations.InstallConnectorResponse, error) {
-	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/api/payments/connectors/{connector}", request, nil)
-
-	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, "RequestBody", "json")
+	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, "CreateSecretRequest", "json")
 	if err != nil {
 		return nil, fmt.Errorf("error serializing request body: %w", err)
 	}
-	if bodyReader == nil {
-		return nil, fmt.Errorf("request body is required")
-	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bodyReader)
 	if err != nil {
@@ -265,43 +236,7 @@ func (s *payments) InstallConnector(ctx context.Context, request operations.Inst
 
 	contentType := httpRes.Header.Get("Content-Type")
 
-	res := &operations.InstallConnectorResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: contentType,
-		RawResponse: httpRes,
-	}
-	switch {
-	case httpRes.StatusCode == 204:
-	}
-
-	return res, nil
-}
-
-// ListAllConnectors - List all installed connectors
-// List all installed connectors.
-func (s *payments) ListAllConnectors(ctx context.Context) (*operations.ListAllConnectorsResponse, error) {
-	baseURL := s.serverURL
-	url := strings.TrimSuffix(baseURL, "/") + "/api/payments/connectors"
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	client := s.securityClient
-
-	httpRes, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	if httpRes == nil {
-		return nil, fmt.Errorf("error sending request: no response")
-	}
-	defer httpRes.Body.Close()
-
-	contentType := httpRes.Header.Get("Content-Type")
-
-	res := &operations.ListAllConnectorsResponse{
+	res := &operations.CreateSecretResponse{
 		StatusCode:  httpRes.StatusCode,
 		ContentType: contentType,
 		RawResponse: httpRes,
@@ -310,340 +245,22 @@ func (s *payments) ListAllConnectors(ctx context.Context) (*operations.ListAllCo
 	case httpRes.StatusCode == 200:
 		switch {
 		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.ConnectorsResponse
+			var out *shared.CreateSecretResponse
 			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
 				return nil, err
 			}
 
-			res.ConnectorsResponse = out
+			res.CreateSecretResponse = out
 		}
 	}
 
 	return res, nil
 }
 
-// ListConfigsAvailableConnectors - List the configs of each available connector
-// List the configs of each available connector.
-func (s *payments) ListConfigsAvailableConnectors(ctx context.Context) (*operations.ListConfigsAvailableConnectorsResponse, error) {
+// DeleteClient - Delete client
+func (s *auth) DeleteClient(ctx context.Context, request operations.DeleteClientRequest) (*operations.DeleteClientResponse, error) {
 	baseURL := s.serverURL
-	url := strings.TrimSuffix(baseURL, "/") + "/api/payments/connectors/configs"
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	client := s.securityClient
-
-	httpRes, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	if httpRes == nil {
-		return nil, fmt.Errorf("error sending request: no response")
-	}
-	defer httpRes.Body.Close()
-
-	contentType := httpRes.Header.Get("Content-Type")
-
-	res := &operations.ListConfigsAvailableConnectorsResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: contentType,
-		RawResponse: httpRes,
-	}
-	switch {
-	case httpRes.StatusCode == 200:
-		switch {
-		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.ConnectorsConfigsResponse
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
-				return nil, err
-			}
-
-			res.ConnectorsConfigsResponse = out
-		}
-	}
-
-	return res, nil
-}
-
-// ListConnectorTasks - List tasks from a connector
-// List all tasks associated with this connector.
-func (s *payments) ListConnectorTasks(ctx context.Context, request operations.ListConnectorTasksRequest) (*operations.ListConnectorTasksResponse, error) {
-	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/api/payments/connectors/{connector}/tasks", request, nil)
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	if err := utils.PopulateQueryParams(ctx, req, request, nil); err != nil {
-		return nil, fmt.Errorf("error populating query params: %w", err)
-	}
-
-	client := s.securityClient
-
-	httpRes, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	if httpRes == nil {
-		return nil, fmt.Errorf("error sending request: no response")
-	}
-	defer httpRes.Body.Close()
-
-	contentType := httpRes.Header.Get("Content-Type")
-
-	res := &operations.ListConnectorTasksResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: contentType,
-		RawResponse: httpRes,
-	}
-	switch {
-	case httpRes.StatusCode == 200:
-		switch {
-		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.TasksCursor
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
-				return nil, err
-			}
-
-			res.TasksCursor = out
-		}
-	}
-
-	return res, nil
-}
-
-// ListConnectorsTransfers - List transfers and their statuses
-// List transfers
-func (s *payments) ListConnectorsTransfers(ctx context.Context, request operations.ListConnectorsTransfersRequest) (*operations.ListConnectorsTransfersResponse, error) {
-	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/api/payments/connectors/{connector}/transfers", request, nil)
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	client := s.securityClient
-
-	httpRes, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	if httpRes == nil {
-		return nil, fmt.Errorf("error sending request: no response")
-	}
-	defer httpRes.Body.Close()
-
-	contentType := httpRes.Header.Get("Content-Type")
-
-	res := &operations.ListConnectorsTransfersResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: contentType,
-		RawResponse: httpRes,
-	}
-	switch {
-	case httpRes.StatusCode == 200:
-		switch {
-		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.TransfersResponse
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
-				return nil, err
-			}
-
-			res.TransfersResponse = out
-		}
-	}
-
-	return res, nil
-}
-
-// ListPayments - List payments
-func (s *payments) ListPayments(ctx context.Context, request operations.ListPaymentsRequest) (*operations.ListPaymentsResponse, error) {
-	baseURL := s.serverURL
-	url := strings.TrimSuffix(baseURL, "/") + "/api/payments/payments"
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	if err := utils.PopulateQueryParams(ctx, req, request, nil); err != nil {
-		return nil, fmt.Errorf("error populating query params: %w", err)
-	}
-
-	client := s.securityClient
-
-	httpRes, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	if httpRes == nil {
-		return nil, fmt.Errorf("error sending request: no response")
-	}
-	defer httpRes.Body.Close()
-
-	contentType := httpRes.Header.Get("Content-Type")
-
-	res := &operations.ListPaymentsResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: contentType,
-		RawResponse: httpRes,
-	}
-	switch {
-	case httpRes.StatusCode == 200:
-		switch {
-		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.PaymentsCursor
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
-				return nil, err
-			}
-
-			res.PaymentsCursor = out
-		}
-	}
-
-	return res, nil
-}
-
-// PaymentslistAccounts - List accounts
-func (s *payments) PaymentslistAccounts(ctx context.Context, request operations.PaymentslistAccountsRequest) (*operations.PaymentslistAccountsResponse, error) {
-	baseURL := s.serverURL
-	url := strings.TrimSuffix(baseURL, "/") + "/api/payments/accounts"
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	if err := utils.PopulateQueryParams(ctx, req, request, nil); err != nil {
-		return nil, fmt.Errorf("error populating query params: %w", err)
-	}
-
-	client := s.securityClient
-
-	httpRes, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	if httpRes == nil {
-		return nil, fmt.Errorf("error sending request: no response")
-	}
-	defer httpRes.Body.Close()
-
-	contentType := httpRes.Header.Get("Content-Type")
-
-	res := &operations.PaymentslistAccountsResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: contentType,
-		RawResponse: httpRes,
-	}
-	switch {
-	case httpRes.StatusCode == 200:
-		switch {
-		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.AccountsCursor
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
-				return nil, err
-			}
-
-			res.AccountsCursor = out
-		}
-	}
-
-	return res, nil
-}
-
-// ReadConnectorConfig - Read the config of a connector
-// Read connector config
-func (s *payments) ReadConnectorConfig(ctx context.Context, request operations.ReadConnectorConfigRequest) (*operations.ReadConnectorConfigResponse, error) {
-	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/api/payments/connectors/{connector}/config", request, nil)
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	client := s.securityClient
-
-	httpRes, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	if httpRes == nil {
-		return nil, fmt.Errorf("error sending request: no response")
-	}
-	defer httpRes.Body.Close()
-
-	contentType := httpRes.Header.Get("Content-Type")
-
-	res := &operations.ReadConnectorConfigResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: contentType,
-		RawResponse: httpRes,
-	}
-	switch {
-	case httpRes.StatusCode == 200:
-		switch {
-		case utils.MatchContentType(contentType, `application/json`):
-			var out *shared.ConnectorConfigResponse
-			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
-				return nil, err
-			}
-
-			res.ConnectorConfigResponse = out
-		}
-	}
-
-	return res, nil
-}
-
-// ResetConnector - Reset a connector
-// Reset a connector by its name.
-// It will remove the connector and ALL PAYMENTS generated with it.
-func (s *payments) ResetConnector(ctx context.Context, request operations.ResetConnectorRequest) (*operations.ResetConnectorResponse, error) {
-	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/api/payments/connectors/{connector}/reset", request, nil)
-
-	req, err := http.NewRequestWithContext(ctx, "POST", url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	client := s.securityClient
-
-	httpRes, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
-	}
-	if httpRes == nil {
-		return nil, fmt.Errorf("error sending request: no response")
-	}
-	defer httpRes.Body.Close()
-
-	contentType := httpRes.Header.Get("Content-Type")
-
-	res := &operations.ResetConnectorResponse{
-		StatusCode:  httpRes.StatusCode,
-		ContentType: contentType,
-		RawResponse: httpRes,
-	}
-	switch {
-	case httpRes.StatusCode == 204:
-	}
-
-	return res, nil
-}
-
-// UninstallConnector - Uninstall a connector
-// Uninstall a connector by its name.
-func (s *payments) UninstallConnector(ctx context.Context, request operations.UninstallConnectorRequest) (*operations.UninstallConnectorResponse, error) {
-	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/api/payments/connectors/{connector}", request, nil)
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/clients/{clientId}", request, nil)
 
 	req, err := http.NewRequestWithContext(ctx, "DELETE", url, nil)
 	if err != nil {
@@ -663,7 +280,7 @@ func (s *payments) UninstallConnector(ctx context.Context, request operations.Un
 
 	contentType := httpRes.Header.Get("Content-Type")
 
-	res := &operations.UninstallConnectorResponse{
+	res := &operations.DeleteClientResponse{
 		StatusCode:  httpRes.StatusCode,
 		ContentType: contentType,
 		RawResponse: httpRes,
@@ -675,20 +292,427 @@ func (s *payments) UninstallConnector(ctx context.Context, request operations.Un
 	return res, nil
 }
 
-// UpdateMetadata - Update metadata
-func (s *payments) UpdateMetadata(ctx context.Context, request operations.UpdateMetadataRequest) (*operations.UpdateMetadataResponse, error) {
+// DeleteScope - Delete scope
+// Delete scope
+func (s *auth) DeleteScope(ctx context.Context, request operations.DeleteScopeRequest) (*operations.DeleteScopeResponse, error) {
 	baseURL := s.serverURL
-	url := utils.GenerateURL(ctx, baseURL, "/api/payments/payments/{paymentId}/metadata", request, nil)
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/scopes/{scopeId}", request, nil)
 
-	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, "PaymentMetadata", "json")
+	req, err := http.NewRequestWithContext(ctx, "DELETE", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.DeleteScopeResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 204:
+	}
+
+	return res, nil
+}
+
+// DeleteScopeFromClient - Delete scope from client
+func (s *auth) DeleteScopeFromClient(ctx context.Context, request operations.DeleteScopeFromClientRequest) (*operations.DeleteScopeFromClientResponse, error) {
+	baseURL := s.serverURL
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/clients/{clientId}/scopes/{scopeId}", request, nil)
+
+	req, err := http.NewRequestWithContext(ctx, "DELETE", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.DeleteScopeFromClientResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 204:
+	}
+
+	return res, nil
+}
+
+// DeleteSecret - Delete a secret from a client
+func (s *auth) DeleteSecret(ctx context.Context, request operations.DeleteSecretRequest) (*operations.DeleteSecretResponse, error) {
+	baseURL := s.serverURL
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/clients/{clientId}/secrets/{secretId}", request, nil)
+
+	req, err := http.NewRequestWithContext(ctx, "DELETE", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.DeleteSecretResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 204:
+	}
+
+	return res, nil
+}
+
+// DeleteTransientScope - Delete a transient scope from a scope
+// Delete a transient scope from a scope
+func (s *auth) DeleteTransientScope(ctx context.Context, request operations.DeleteTransientScopeRequest) (*operations.DeleteTransientScopeResponse, error) {
+	baseURL := s.serverURL
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/scopes/{scopeId}/transient/{transientScopeId}", request, nil)
+
+	req, err := http.NewRequestWithContext(ctx, "DELETE", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.DeleteTransientScopeResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 204:
+	}
+
+	return res, nil
+}
+
+// ListClients - List clients
+func (s *auth) ListClients(ctx context.Context) (*operations.ListClientsResponse, error) {
+	baseURL := s.serverURL
+	url := strings.TrimSuffix(baseURL, "/") + "/api/auth/clients"
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.ListClientsResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 200:
+		switch {
+		case utils.MatchContentType(contentType, `application/json`):
+			var out *shared.ListClientsResponse
+			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+				return nil, err
+			}
+
+			res.ListClientsResponse = out
+		}
+	}
+
+	return res, nil
+}
+
+// ListScopes - List scopes
+// List Scopes
+func (s *auth) ListScopes(ctx context.Context) (*operations.ListScopesResponse, error) {
+	baseURL := s.serverURL
+	url := strings.TrimSuffix(baseURL, "/") + "/api/auth/scopes"
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.ListScopesResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 200:
+		switch {
+		case utils.MatchContentType(contentType, `application/json`):
+			var out *shared.ListScopesResponse
+			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+				return nil, err
+			}
+
+			res.ListScopesResponse = out
+		}
+	}
+
+	return res, nil
+}
+
+// ListUsers - List users
+// List users
+func (s *auth) ListUsers(ctx context.Context) (*operations.ListUsersResponse, error) {
+	baseURL := s.serverURL
+	url := strings.TrimSuffix(baseURL, "/") + "/api/auth/users"
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.ListUsersResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 200:
+		switch {
+		case utils.MatchContentType(contentType, `application/json`):
+			var out *shared.ListUsersResponse
+			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+				return nil, err
+			}
+
+			res.ListUsersResponse = out
+		}
+	}
+
+	return res, nil
+}
+
+// ReadClient - Read client
+func (s *auth) ReadClient(ctx context.Context, request operations.ReadClientRequest) (*operations.ReadClientResponse, error) {
+	baseURL := s.serverURL
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/clients/{clientId}", request, nil)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.ReadClientResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 200:
+		switch {
+		case utils.MatchContentType(contentType, `application/json`):
+			var out *shared.ReadClientResponse
+			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+				return nil, err
+			}
+
+			res.ReadClientResponse = out
+		}
+	}
+
+	return res, nil
+}
+
+// ReadScope - Read scope
+// Read scope
+func (s *auth) ReadScope(ctx context.Context, request operations.ReadScopeRequest) (*operations.ReadScopeResponse, error) {
+	baseURL := s.serverURL
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/scopes/{scopeId}", request, nil)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.ReadScopeResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 200:
+		switch {
+		case utils.MatchContentType(contentType, `application/json`):
+			var out *shared.ReadScopeResponse
+			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+				return nil, err
+			}
+
+			res.ReadScopeResponse = out
+		}
+	}
+
+	return res, nil
+}
+
+// ReadUser - Read user
+// Read user
+func (s *auth) ReadUser(ctx context.Context, request operations.ReadUserRequest) (*operations.ReadUserResponse, error) {
+	baseURL := s.serverURL
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/users/{userId}", request, nil)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.ReadUserResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 200:
+		switch {
+		case utils.MatchContentType(contentType, `application/json`):
+			var out *shared.ReadUserResponse
+			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+				return nil, err
+			}
+
+			res.ReadUserResponse = out
+		}
+	}
+
+	return res, nil
+}
+
+// UpdateClient - Update client
+func (s *auth) UpdateClient(ctx context.Context, request operations.UpdateClientRequest) (*operations.UpdateClientResponse, error) {
+	baseURL := s.serverURL
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/clients/{clientId}", request, nil)
+
+	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, "UpdateClientRequest", "json")
 	if err != nil {
 		return nil, fmt.Errorf("error serializing request body: %w", err)
 	}
-	if bodyReader == nil {
-		return nil, fmt.Errorf("request body is required")
-	}
 
-	req, err := http.NewRequestWithContext(ctx, "PATCH", url, bodyReader)
+	req, err := http.NewRequestWithContext(ctx, "PUT", url, bodyReader)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
@@ -708,13 +732,74 @@ func (s *payments) UpdateMetadata(ctx context.Context, request operations.Update
 
 	contentType := httpRes.Header.Get("Content-Type")
 
-	res := &operations.UpdateMetadataResponse{
+	res := &operations.UpdateClientResponse{
 		StatusCode:  httpRes.StatusCode,
 		ContentType: contentType,
 		RawResponse: httpRes,
 	}
 	switch {
-	case httpRes.StatusCode == 204:
+	case httpRes.StatusCode == 200:
+		switch {
+		case utils.MatchContentType(contentType, `application/json`):
+			var out *shared.UpdateClientResponse
+			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+				return nil, err
+			}
+
+			res.UpdateClientResponse = out
+		}
+	}
+
+	return res, nil
+}
+
+// UpdateScope - Update scope
+// Update scope
+func (s *auth) UpdateScope(ctx context.Context, request operations.UpdateScopeRequest) (*operations.UpdateScopeResponse, error) {
+	baseURL := s.serverURL
+	url := utils.GenerateURL(ctx, baseURL, "/api/auth/scopes/{scopeId}", request, nil)
+
+	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, "UpdateScopeRequest", "json")
+	if err != nil {
+		return nil, fmt.Errorf("error serializing request body: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "PUT", url, bodyReader)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", reqContentType)
+
+	client := s.securityClient
+
+	httpRes, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request: %w", err)
+	}
+	if httpRes == nil {
+		return nil, fmt.Errorf("error sending request: no response")
+	}
+	defer httpRes.Body.Close()
+
+	contentType := httpRes.Header.Get("Content-Type")
+
+	res := &operations.UpdateScopeResponse{
+		StatusCode:  httpRes.StatusCode,
+		ContentType: contentType,
+		RawResponse: httpRes,
+	}
+	switch {
+	case httpRes.StatusCode == 200:
+		switch {
+		case utils.MatchContentType(contentType, `application/json`):
+			var out *shared.UpdateScopeResponse
+			if err := utils.UnmarshalJsonFromResponseBody(httpRes.Body, &out); err != nil {
+				return nil, err
+			}
+
+			res.UpdateScopeResponse = out
+		}
 	}
 
 	return res, nil

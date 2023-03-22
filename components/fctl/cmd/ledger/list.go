@@ -32,12 +32,12 @@ func NewListCommand() *cobra.Command {
 				return err
 			}
 
-			info, _, err := ledgerClient.ServerApi.GetInfo(cmd.Context()).Execute()
+			info, err := ledgerClient.Ledger.GetInfo(cmd.Context())
 			if err != nil {
 				return err
 			}
 
-			tableData := fctl.Map(info.Data.Config.Storage.Ledgers, func(ledger string) []string {
+			tableData := fctl.Map(info.ConfigInfoResponse.Data.Config.Storage.Ledgers, func(ledger string) []string {
 				return []string{
 					ledger,
 				}

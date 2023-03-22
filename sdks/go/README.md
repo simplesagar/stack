@@ -15,7 +15,7 @@
 ## SDK Installation
 
 ```bash
-go get github.com/formancehq/stack/sdks/go
+go get github.com/formancehq/formance-sdk-go
 ```
 <!-- End SDK Installation -->
 
@@ -27,9 +27,9 @@ package main
 import (
     "context"
     "log"
-    "github.com/formancehq/stack/sdks/go"
-    "github.com/formancehq/stack/sdks/go/pkg/models/shared"
-    "github.com/formancehq/stack/sdks/go/pkg/models/operations"
+    "github.com/formancehq/formance-sdk-go"
+    "github.com/formancehq/formance-sdk-go/pkg/models/shared"
+    "github.com/formancehq/formance-sdk-go/pkg/models/operations"
 )
 
 func main() {
@@ -67,6 +67,27 @@ func main() {
 * `CountAccounts` - Count the accounts from a ledger
 * `GetAccount` - Get account by its address
 * `ListAccounts` - List accounts from a ledger
+
+### Auth
+
+* `AddScopeToClient` - Add scope to client
+* `AddTransientScope` - Add a transient scope to a scope
+* `CreateClient` - Create client
+* `CreateScope` - Create scope
+* `CreateSecret` - Add a secret to a client
+* `DeleteClient` - Delete client
+* `DeleteScope` - Delete scope
+* `DeleteScopeFromClient` - Delete scope from client
+* `DeleteSecret` - Delete a secret from a client
+* `DeleteTransientScope` - Delete a transient scope from a scope
+* `ListClients` - List clients
+* `ListScopes` - List scopes
+* `ListUsers` - List users
+* `ReadClient` - Read client
+* `ReadScope` - Read scope
+* `ReadUser` - Read user
+* `UpdateClient` - Update client
+* `UpdateScope` - Update scope
 
 ### Balances
 

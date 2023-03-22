@@ -5,6 +5,7 @@ import (
 
 	"github.com/formancehq/fctl/membershipclient"
 	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +23,7 @@ func NewMembershipClient(cmd *cobra.Command, cfg *Config) (*membershipclient.API
 	return membershipclient.NewAPIClient(configuration), nil
 }
 
-func NewStackClient(cmd *cobra.Command, cfg *Config, stack *membershipclient.Stack) (*formance.APIClient, error) {
+func NewStackClient(cmd *cobra.Command, cfg *Config, stack *membershipclient.Stack) (*formance.Formance, error) {
 	profile := GetCurrentProfile(cmd, cfg)
 	httpClient := GetHttpClient(cmd)
 
@@ -31,12 +32,12 @@ func NewStackClient(cmd *cobra.Command, cfg *Config, stack *membershipclient.Sta
 		return nil, err
 	}
 
-	apiConfig := formance.NewConfiguration()
-	apiConfig.Servers = formance.ServerConfigurations{{
-		URL: stack.Uri,
-	}}
-	apiConfig.AddDefaultHeader("Authorization", fmt.Sprintf("Bearer %s", token))
-	apiConfig.HTTPClient = httpClient
+	apiConfig := formance.New(
+		formance.WithServerURL(stack.Uri),
+		formance.WithSecurity(shared.Security{
+			Authorization: fmt.Sprintf("Bearer %s", token),
+		}),
+	)
 
-	return formance.NewAPIClient(apiConfig), nil
+	return apiConfig, nil
 }

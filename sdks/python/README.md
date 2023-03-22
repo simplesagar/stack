@@ -55,6 +55,27 @@ if res.server_info is not None:
 * `get_account` - Get account by its address
 * `list_accounts` - List accounts from a ledger
 
+### auth
+
+* `add_scope_to_client` - Add scope to client
+* `add_transient_scope` - Add a transient scope to a scope
+* `create_client` - Create client
+* `create_scope` - Create scope
+* `create_secret` - Add a secret to a client
+* `delete_client` - Delete client
+* `delete_scope` - Delete scope
+* `delete_scope_from_client` - Delete scope from client
+* `delete_secret` - Delete a secret from a client
+* `delete_transient_scope` - Delete a transient scope from a scope
+* `list_clients` - List clients
+* `list_scopes` - List scopes
+* `list_users` - List users
+* `read_client` - Read client
+* `read_scope` - Read scope
+* `read_user` - Read user
+* `update_client` - Update client
+* `update_scope` - Update scope
+
 ### balances
 
 * `get_balances` - Get the balances from a ledger's account

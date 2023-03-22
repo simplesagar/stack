@@ -3,6 +3,7 @@ package transactions
 import (
 	"github.com/formancehq/fctl/cmd/ledger/internal"
 	fctl "github.com/formancehq/fctl/pkg"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -44,12 +45,16 @@ func NewRevertCommand() *cobra.Command {
 				return err
 			}
 
-			rsp, _, err := ledgerClient.TransactionsApi.RevertTransaction(cmd.Context(), ledger, txId).Execute()
+			request := operations.RevertTransactionRequest{
+				Ledger: ledger,
+				Txid:   txId,
+			}
+			rsp, err := ledgerClient.Ledger.RevertTransaction(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrapf(err, "reverting transaction")
 			}
 
-			return internal.PrintTransaction(cmd.OutOrStdout(), rsp.Data)
+			return internal.PrintTransaction(cmd.OutOrStdout(), rsp.TransactionResponse.Data)
 		}),
 	)
 }

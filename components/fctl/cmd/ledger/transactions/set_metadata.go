@@ -3,6 +3,7 @@ package transactions
 import (
 	"github.com/formancehq/fctl/cmd/ledger/internal"
 	fctl "github.com/formancehq/fctl/pkg"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
@@ -51,10 +52,12 @@ func NewSetMetadataCommand() *cobra.Command {
 				return fctl.ErrMissingApproval
 			}
 
-			_, err = ledgerClient.TransactionsApi.
-				AddMetadataOnTransaction(cmd.Context(), fctl.GetString(cmd, internal.LedgerFlag), transactionID).
-				RequestBody(metadata).
-				Execute()
+			request := operations.AddMetadataOnTransactionRequest{
+				Ledger:      fctl.GetString(cmd, internal.LedgerFlag),
+				Txid:        transactionID,
+				RequestBody: metadata,
+			}
+			_, err = ledgerClient.Ledger.AddMetadataOnTransaction(cmd.Context(), request)
 			if err != nil {
 				return err
 			}

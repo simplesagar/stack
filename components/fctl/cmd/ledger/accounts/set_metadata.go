@@ -3,14 +3,15 @@ package accounts
 import (
 	"github.com/formancehq/fctl/cmd/ledger/internal"
 	fctl "github.com/formancehq/fctl/pkg"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
 
 func NewSetMetadataCommand() *cobra.Command {
-	return fctl.NewCommand("set-metadata <account> [<key>=<value>...]",
+	return fctl.NewCommand("set-metadata <address> [<key>=<value>...]",
 		fctl.WithConfirmFlag(),
-		fctl.WithShortDescription("Set metadata on account"),
+		fctl.WithShortDescription("Set metadata on address"),
 		fctl.WithAliases("sm", "set-meta"),
 		fctl.WithArgs(cobra.MinimumNArgs(2)),
 		fctl.WithRunE(func(cmd *cobra.Command, args []string) error {
@@ -35,9 +36,9 @@ func NewSetMetadataCommand() *cobra.Command {
 				return err
 			}
 
-			account := args[0]
+			address := args[0]
 
-			if !fctl.CheckStackApprobation(cmd, stack, "You are about to set a metadata on account '%s'", account) {
+			if !fctl.CheckStackApprobation(cmd, stack, "You are about to set a metadata on address '%s'", address) {
 				return fctl.ErrMissingApproval
 			}
 
@@ -46,10 +47,12 @@ func NewSetMetadataCommand() *cobra.Command {
 				return err
 			}
 
-			_, err = ledgerClient.AccountsApi.
-				AddMetadataToAccount(cmd.Context(), fctl.GetString(cmd, internal.LedgerFlag), account).
-				RequestBody(metadata).
-				Execute()
+			request := operations.AddMetadataToAccountRequest{
+				Ledger:      fctl.GetString(cmd, internal.LedgerFlag),
+				Address:     address,
+				RequestBody: metadata,
+			}
+			_, err = ledgerClient.Ledger.AddMetadataToAccount(cmd.Context(), request)
 			if err != nil {
 				return err
 			}

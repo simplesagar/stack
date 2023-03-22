@@ -66,6 +66,27 @@ public class Application {
 * `getAccount` - Get account by its address
 * `listAccounts` - List accounts from a ledger
 
+### auth
+
+* `addScopeToClient` - Add scope to client
+* `addTransientScope` - Add a transient scope to a scope
+* `createClient` - Create client
+* `createScope` - Create scope
+* `createSecret` - Add a secret to a client
+* `deleteClient` - Delete client
+* `deleteScope` - Delete scope
+* `deleteScopeFromClient` - Delete scope from client
+* `deleteSecret` - Delete a secret from a client
+* `deleteTransientScope` - Delete a transient scope from a scope
+* `listClients` - List clients
+* `listScopes` - List scopes
+* `listUsers` - List users
+* `readClient` - Read client
+* `readScope` - Read scope
+* `readUser` - Read user
+* `updateClient` - Update client
+* `updateScope` - Update scope
+
 ### balances
 
 * `getBalances` - Get the balances from a ledger's account

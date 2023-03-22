@@ -6,8 +6,7 @@ require (
 	github.com/athul/shelby v1.0.6
 	github.com/c-bata/go-prompt v0.2.6
 	github.com/formancehq/fctl/membershipclient v0.0.0-00010101000000-000000000000
-	github.com/formancehq/formance-sdk-go v1.0.0-rc.1.0.20230105103853-efecdbdedb04
-	github.com/formancehq/stack/libs/go-libs v0.0.0-00010101000000-000000000000
+	github.com/formancehq/formance-sdk-go v1.0.20230301
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/iancoleman/strcase v0.2.0
 	github.com/mattn/go-shellwords v1.0.12
@@ -24,6 +23,8 @@ require (
 require (
 	atomicgo.dev/cursor v0.1.1 // indirect
 	atomicgo.dev/keyboard v0.2.8 // indirect
+	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
+	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -41,8 +42,8 @@ require (
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/segmentio/backo-go v1.0.1 // indirect
 	github.com/sergi/go-diff v1.3.1 // indirect
-	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/talal/go-bits v0.0.0-20200204154716-071e9f3e66e1 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	golang.org/x/crypto v0.6.0 // indirect

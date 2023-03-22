@@ -5,9 +5,9 @@ package formance
 import (
 	"context"
 	"fmt"
-	"github.com/formancehq/stack/sdks/go/pkg/models/operations"
-	"github.com/formancehq/stack/sdks/go/pkg/models/shared"
-	"github.com/formancehq/stack/sdks/go/pkg/utils"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
+	"github.com/formancehq/formance-sdk-go/pkg/utils"
 	"net/http"
 	"strings"
 	"time"
@@ -43,6 +43,7 @@ func String(s string) *string { return &s }
 // <SecurityDefinitions />
 type Formance struct {
 	Accounts      *accounts
+	Auth          *auth
 	Balances      *balances
 	Clients       *clients
 	Ledger        *ledger
@@ -132,6 +133,15 @@ func New(opts ...SDKOption) *Formance {
 	}
 
 	sdk.Accounts = newAccounts(
+		sdk._defaultClient,
+		sdk._securityClient,
+		sdk._serverURL,
+		sdk._language,
+		sdk._sdkVersion,
+		sdk._genVersion,
+	)
+
+	sdk.Auth = newAuth(
 		sdk._defaultClient,
 		sdk._securityClient,
 		sdk._serverURL,

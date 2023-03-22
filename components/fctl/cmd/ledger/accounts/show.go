@@ -5,6 +5,7 @@ import (
 
 	"github.com/formancehq/fctl/cmd/ledger/internal"
 	fctl "github.com/formancehq/fctl/pkg"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
@@ -35,17 +36,20 @@ func NewShowCommand() *cobra.Command {
 				return err
 			}
 
-			ledger := fctl.GetString(cmd, internal.LedgerFlag)
-			rsp, _, err := ledgerClient.AccountsApi.GetAccount(cmd.Context(), ledger, args[0]).Execute()
+			request := operations.GetAccountRequest{
+				Ledger:  fctl.GetString(cmd, internal.LedgerFlag),
+				Address: args[0],
+			}
+			rsp, err := ledgerClient.Ledger.GetAccount(cmd.Context(), request)
 			if err != nil {
 				return err
 			}
 
 			fctl.Section.WithWriter(cmd.OutOrStdout()).Println("Information")
-			if rsp.Data.Volumes != nil && len(*rsp.Data.Volumes) > 0 {
+			if rsp.AccountResponse.Data.Volumes != nil && len(rsp.AccountResponse.Data.Volumes) > 0 {
 				tableData := pterm.TableData{}
 				tableData = append(tableData, []string{"Asset", "Input", "Output"})
-				for asset, volumes := range *rsp.Data.Volumes {
+				for asset, volumes := range rsp.AccountResponse.Data.Volumes {
 					input := volumes["input"]
 					output := volumes["output"]
 					tableData = append(tableData, []string{pterm.LightCyan(asset), fmt.Sprint(input), fmt.Sprint(output)})
@@ -63,7 +67,7 @@ func NewShowCommand() *cobra.Command {
 
 			fmt.Fprintln(cmd.OutOrStdout())
 
-			if err := fctl.PrintMetadata(cmd.OutOrStdout(), rsp.Data.Metadata); err != nil {
+			if err := fctl.PrintMetadata(cmd.OutOrStdout(), rsp.AccountResponse.Data.Metadata); err != nil {
 				return err
 			}
 

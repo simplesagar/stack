@@ -5,9 +5,9 @@ package main
 import (
     "context"
     "log"
-    "github.com/formancehq/stack/sdks/go"
-    "github.com/formancehq/stack/sdks/go/pkg/models/shared"
-    "github.com/formancehq/stack/sdks/go/pkg/models/operations"
+    "github.com/formancehq/formance-sdk-go"
+    "github.com/formancehq/formance-sdk-go/pkg/models/shared"
+    "github.com/formancehq/formance-sdk-go/pkg/models/operations"
 )
 
 func main() {

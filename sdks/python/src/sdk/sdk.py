@@ -3,6 +3,7 @@
 import requests as requests_http
 from . import utils
 from .accounts import Accounts
+from .auth import Auth
 from .balances import Balances
 from .clients import Clients
 from .ledger import Ledger
@@ -45,6 +46,7 @@ class SDK:
     
     """
     accounts: Accounts
+    auth: Auth
     balances: Balances
     clients: Clients
     ledger: Ledger
@@ -105,6 +107,15 @@ class SDK:
     
     def _init_sdks(self):
         self.accounts = Accounts(
+            self._client,
+            self._security_client,
+            self._server_url,
+            self._language,
+            self._sdk_version,
+            self._gen_version
+        )
+        
+        self.auth = Auth(
             self._client,
             self._security_client,
             self._server_url,

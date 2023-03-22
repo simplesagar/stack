@@ -3,6 +3,7 @@ package transactions
 import (
 	"github.com/formancehq/fctl/cmd/ledger/internal"
 	fctl "github.com/formancehq/fctl/pkg"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -40,12 +41,16 @@ func NewShowCommand() *cobra.Command {
 				return err
 			}
 
-			rsp, _, err := ledgerClient.TransactionsApi.GetTransaction(cmd.Context(), ledger, txId).Execute()
+			request := operations.GetTransactionRequest{
+				Ledger: ledger,
+				Txid:   txId,
+			}
+			rsp, err := ledgerClient.Ledger.GetTransaction(cmd.Context(), request)
 			if err != nil {
 				return errors.Wrapf(err, "retrieving transaction")
 			}
 
-			return internal.PrintTransaction(cmd.OutOrStdout(), rsp.Data)
+			return internal.PrintTransaction(cmd.OutOrStdout(), rsp.TransactionResponse.Data)
 		}),
 	)
 }

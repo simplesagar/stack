@@ -6,4 +6,4 @@ generation:
 go:
   version: ""
   author: Formance
-  packageName: github.com/formancehq/stack/sdks/go
+  packageName: github.com/formancehq/formance-sdk-go

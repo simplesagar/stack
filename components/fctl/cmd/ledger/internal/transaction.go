@@ -7,9 +7,10 @@ import (
 	"strings"
 
 	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/operations"
 )
 
-func TransactionIDOrLastN(ctx context.Context, ledgerClient *formance.APIClient, ledger, id string) (int64, error) {
+func TransactionIDOrLastN(ctx context.Context, ledgerClient *formance.Formance, ledger, id string) (int64, error) {
 	if strings.HasPrefix(id, "last") {
 		id = strings.TrimPrefix(id, "last")
 		sub := int64(0)
@@ -20,17 +21,19 @@ func TransactionIDOrLastN(ctx context.Context, ledgerClient *formance.APIClient,
 				return 0, err
 			}
 		}
-		response, _, err := ledgerClient.TransactionsApi.
-			ListTransactions(ctx, ledger).
-			PageSize(1).
-			Execute()
+		pageSize := int64(1)
+		request := operations.ListTransactionsRequest{
+			Ledger:   ledger,
+			PageSize: &pageSize,
+		}
+		response, err := ledgerClient.Ledger.ListTransactions(ctx, request)
 		if err != nil {
 			return 0, err
 		}
-		if len(response.Cursor.Data) == 0 {
+		if len(response.TransactionsCursorResponse.Cursor.Data) == 0 {
 			return 0, errors.New("no transaction found")
 		}
-		return response.Cursor.Data[0].Txid + sub, nil
+		return response.TransactionsCursorResponse.Cursor.Data[0].Txid + sub, nil
 	}
 
 	return strconv.ParseInt(id, 10, 64)

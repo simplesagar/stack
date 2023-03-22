@@ -6,11 +6,11 @@ import (
 	"time"
 
 	fctl "github.com/formancehq/fctl/pkg"
-	"github.com/formancehq/formance-sdk-go"
+	"github.com/formancehq/formance-sdk-go/pkg/models/shared"
 	"github.com/pterm/pterm"
 )
 
-func PrintTransaction(out io.Writer, transaction formance.Transaction) error {
+func PrintTransaction(out io.Writer, transaction shared.Transaction) error {
 
 	fctl.Section.WithWriter(out).Println("Information")
 	tableData := pterm.TableData{}
@@ -46,9 +46,9 @@ func PrintTransaction(out io.Writer, transaction formance.Transaction) error {
 	fctl.Section.WithWriter(out).Println("Resume")
 	tableData = pterm.TableData{}
 	tableData = append(tableData, []string{"Account", "Asset", "Movement", "Final balance"})
-	for account, postCommitVolume := range *transaction.PostCommitVolumes {
+	for account, postCommitVolume := range transaction.PostCommitVolumes {
 		for asset, volumes := range postCommitVolume {
-			movement := *volumes.Balance - *(*transaction.PreCommitVolumes)[account][asset].Balance
+			movement := *volumes.Balance - *(transaction.PreCommitVolumes)[account][asset].Balance
 			movementStr := fmt.Sprint(movement)
 			if movement > 0 {
 				movementStr = "+" + movementStr
