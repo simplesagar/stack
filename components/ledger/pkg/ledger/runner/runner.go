@@ -33,7 +33,7 @@ type Runner struct {
 	// nextTxID store the next transaction id to be used
 	nextTxID *atomic.Uint64
 	// locker is used to local a set of account
-	locker lock.Locker
+	locker *lock.Locker
 	// allowPastTimestamps allow to insert transactions in the past
 	allowPastTimestamps bool
 }
@@ -218,7 +218,7 @@ func (r *Runner) releaseInFlightWithTransaction(inFlight *inFlight, transaction 
 	}
 }
 
-func New(store storage.LedgerStore, locker lock.Locker, cache *cache.Cache, allowPastTimestamps bool) (*Runner, error) {
+func New(store storage.LedgerStore, locker *lock.Locker, cache *cache.Cache, allowPastTimestamps bool) (*Runner, error) {
 	log, err := store.ReadLastLogWithType(context.Background(), core.NewTransactionLogType, core.RevertedTransactionLogType)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err

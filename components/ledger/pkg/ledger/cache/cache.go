@@ -24,7 +24,7 @@ func (c *Cache) GetAccountWithVolumes(ctx context.Context, address string) (*cor
 
 	address = strings.TrimPrefix(address, "@")
 
-	entry, err := c.cache.Get(address)
+	_, err := c.cache.Get(address)
 	if err != nil {
 		// TODO: Rename later ?
 		account, err := c.store.ComputeAccount(ctx, address)
@@ -39,13 +39,14 @@ func (c *Cache) GetAccountWithVolumes(ctx context.Context, address string) (*cor
 		if err := c.cache.Set(account.Address, ce); err != nil {
 			panic(err)
 		}
-
-		*account = account.Copy()
-		return account, nil
 	}
-	cp := entry.(*cacheEntry).account.Copy()
 
-	return &cp, nil
+	var ret core.AccountWithVolumes
+	c.withLockOnAccount(address, func(account *core.AccountWithVolumes) {
+		ret = account.Copy()
+	})
+
+	return &ret, nil
 }
 
 func (c *Cache) withLockOnAccount(address string, callback func(account *core.AccountWithVolumes)) {

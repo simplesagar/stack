@@ -49,7 +49,9 @@ func runOnLedger(t interface {
 	ledgerCache, err := cacheManager.ForLedger(context.Background(), ledger)
 	require.NoError(t, err)
 
-	locker := lock.NewDefaultLocker(ledger)
+	locker := lock.NewLocker(ledger)
+	go locker.Run(context.Background())
+	defer locker.Stop()
 
 	runner, err := runner.New(store, locker, ledgerCache, false)
 	require.NoError(t, err)

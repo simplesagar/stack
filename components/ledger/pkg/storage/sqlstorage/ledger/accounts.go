@@ -348,7 +348,7 @@ func (s *Store) ComputeAccount(ctx context.Context, address string) (*core.Accou
 		return nil, err
 	}
 	defer func() {
-		_ = tx.Rollback()
+		_ = tx.Commit()
 	}()
 
 	account, err := s.getAccountWithVolumes(ctx, tx, address)

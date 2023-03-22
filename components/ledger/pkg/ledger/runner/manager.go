@@ -13,7 +13,7 @@ import (
 type Manager struct {
 	mu                  sync.Mutex
 	storageDriver       storage.Driver
-	lock                lock.Locker
+	lock                *lock.Locker
 	allowPastTimestamps bool
 	cacheManager        *cache.Manager
 	// ledgers store the script runner for each ledger
@@ -45,7 +45,7 @@ func (m *Manager) ForLedger(ctx context.Context, ledger string) (*Runner, error)
 	return runner, nil
 }
 
-func NewManager(storageDriver storage.Driver, lock lock.Locker, cacheManager *cache.Manager, allowPastTimestamps bool) *Manager {
+func NewManager(storageDriver storage.Driver, lock *lock.Locker, cacheManager *cache.Manager, allowPastTimestamps bool) *Manager {
 	return &Manager{
 		storageDriver:       storageDriver,
 		lock:                lock,

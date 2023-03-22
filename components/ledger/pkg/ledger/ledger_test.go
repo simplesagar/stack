@@ -3,9 +3,9 @@ package ledger
 import (
 	"context"
 	"fmt"
-	"sync"
 	"testing"
 
+	"github.com/alitto/pond"
 	"github.com/formancehq/ledger/pkg/core"
 	"github.com/formancehq/ledger/pkg/ledger/cache"
 	"github.com/formancehq/ledger/pkg/ledger/lock"
@@ -184,7 +184,9 @@ func BenchmarkSequentialWrites(b *testing.B) {
 	cache, err := cacheManager.ForLedger(context.Background(), ledgerName)
 	require.NoError(b, err)
 
-	locker := lock.NewDefaultLocker(ledgerName)
+	locker := lock.NewLocker(ledgerName)
+	go locker.Run(context.Background())
+	defer locker.Stop()
 
 	runnerManager := runner.NewManager(driver, locker, cacheManager, false)
 	runner, err := runnerManager.ForLedger(context.Background(), ledgerName)
@@ -194,17 +196,19 @@ func BenchmarkSequentialWrites(b *testing.B) {
 	go func() {
 		require.NoError(b, queryWorker.Run(context.Background()))
 	}()
+	defer queryWorker.Stop(context.Background())
 
 	ledger := New(store, cache, runner, locker, queryWorker)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
+		i := i
 		_, err := ledger.CreateTransaction(context.Background(), false, core.RunScript{
 			Script: core.Script{
-				Plain: `send [USD/2 100] (
+				Plain: fmt.Sprintf(`send [USD/2 100] (
 					source = @world
-					destination = @bank
-				)`,
+					destination = @bank%d
+				)`, i%20),
 			},
 		})
 		require.NoError(b, err)
@@ -226,7 +230,9 @@ func BenchmarkParallelWrites(b *testing.B) {
 	cache, err := cacheManager.ForLedger(context.Background(), ledgerName)
 	require.NoError(b, err)
 
-	locker := lock.NewDefaultLocker(ledgerName)
+	locker := lock.NewLocker(ledgerName)
+	go locker.Run(context.Background())
+	defer locker.Stop()
 
 	runnerManager := runner.NewManager(driver, locker, cacheManager, false)
 	runner, err := runnerManager.ForLedger(context.Background(), ledgerName)
@@ -236,26 +242,26 @@ func BenchmarkParallelWrites(b *testing.B) {
 	go func() {
 		require.NoError(b, queryWorker.Run(context.Background()))
 	}()
+	defer queryWorker.Stop(context.Background())
 
 	ledger := New(store, cache, runner, locker, queryWorker)
 
-	b.ResetTimer()
-	wg := sync.WaitGroup{}
-	wg.Add(b.N)
-	for i := 0; i < b.N; i++ {
-		go func() {
-			defer wg.Done()
+	wp := pond.New(20, 1000)
 
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		i := i
+		wp.Submit(func() {
 			_, err := ledger.CreateTransaction(context.Background(), false, core.RunScript{
 				Script: core.Script{
-					Plain: `send [USD/2 100] (
+					Plain: fmt.Sprintf(`send [USD/2 100] (
 					source = @world
-					destination = @bank
-				)`,
+					destination = @bank%d
+				)`, i%20),
 				},
 			})
 			require.NoError(b, err)
-		}()
+		})
 	}
-	wg.Wait()
+	wp.StopAndWait()
 }

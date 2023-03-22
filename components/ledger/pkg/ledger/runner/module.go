@@ -9,8 +9,8 @@ import (
 
 func Module(allowPastTimestamp bool) fx.Option {
 	return fx.Options(
-		fx.Provide(func(storageDriver storage.Driver, lock lock.Locker, cacheManager *cache.Manager) *Manager {
-			return NewManager(storageDriver, lock, cacheManager, allowPastTimestamp)
+		fx.Provide(func(storageDriver storage.Driver, locker *lock.Locker, cacheManager *cache.Manager) *Manager {
+			return NewManager(storageDriver, locker, cacheManager, allowPastTimestamp)
 		}),
 	)
 }

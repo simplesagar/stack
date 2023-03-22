@@ -9,3 +9,13 @@ func Filter[T any](slice []T, filter func(T) bool) []T {
 	}
 	return ret
 }
+
+func First[T any](slice []T, filter func(T) bool) *T {
+	for _, item := range slice {
+		if filter(item) {
+			return &item
+		}
+	}
+	return nil
+}
+

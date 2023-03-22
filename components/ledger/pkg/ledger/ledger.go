@@ -17,7 +17,7 @@ import (
 type Ledger struct {
 	runner      *runner.Runner
 	store       storage.LedgerStore
-	locker      lock.Locker
+	locker      *lock.Locker
 	dbCache     *cache.Cache
 	queryWorker *query.Worker
 }
@@ -26,7 +26,7 @@ func New(
 	store storage.LedgerStore,
 	dbCache *cache.Cache,
 	runner *runner.Runner,
-	locker lock.Locker,
+	locker *lock.Locker,
 	queryWorker *query.Worker,
 ) *Ledger {
 	return &Ledger{
@@ -50,11 +50,11 @@ func (l *Ledger) GetLedgerStore() storage.LedgerStore {
 }
 
 func (l *Ledger) CreateTransaction(ctx context.Context, dryRun bool, script core.RunScript) (*core.ExpandedTransaction, error) {
-	tx, log, err := l.runner.Execute(ctx, script, dryRun, func(expandedTx core.ExpandedTransaction, accountMetadata map[string]core.Metadata) core.Log {
+	tx, _, err := l.runner.Execute(ctx, script, dryRun, func(expandedTx core.ExpandedTransaction, accountMetadata map[string]core.Metadata) core.Log {
 		return core.NewTransactionLog(expandedTx.Transaction, accountMetadata)
 	})
 	if err == nil && !dryRun {
-		l.queryWorker.QueueLog(ctx, log, l.store)
+		//l.queryWorker.QueueLog(ctx, log, l.store)
 	}
 
 	return tx, err
