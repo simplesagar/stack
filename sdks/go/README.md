@@ -39,13 +39,18 @@ func main() {
         }),
     )
 
+    req := operations.AddScopeToClientRequest{
+        ClientID: "unde",
+        ScopeID: "deserunt",
+    }
+
     ctx := context.Background()
-    res, err := s.GetServerInfo(ctx)
+    res, err := s.Auth.AddScopeToClient(ctx, req)
     if err != nil {
         log.Fatal(err)
     }
 
-    if res.ServerInfo != nil {
+    if res.StatusCode == http.StatusOK {
         // handle response
     }
 }
@@ -55,11 +60,6 @@ func main() {
 <!-- Start SDK Available Operations -->
 ## SDK Available Operations
 
-### Formance SDK
-
-* `GetServerInfo` - Get server info
-* `PaymentsgetServerInfo` - Get server info
-* `SearchgetServerInfo` - Get server info
 
 ### Auth
 
@@ -73,6 +73,7 @@ func main() {
 * `DeleteScopeFromClient` - Delete scope from client
 * `DeleteSecret` - Delete a secret from a client
 * `DeleteTransientScope` - Delete a transient scope from a scope
+* `GetServerInfo` - Get server info
 * `ListClients` - List clients
 * `ListScopes` - List scopes
 * `ListUsers` - List users
@@ -131,6 +132,7 @@ func main() {
 * `ListConnectorTasks` - List tasks from a connector
 * `ListConnectorsTransfers` - List transfers and their statuses
 * `ListPayments` - List payments
+* `PaymentsgetServerInfo` - Get server info
 * `PaymentslistAccounts` - List accounts
 * `ReadConnectorConfig` - Read the config of a connector
 * `ResetConnector` - Reset a connector
@@ -140,6 +142,7 @@ func main() {
 ### Search
 
 * `Search` - Search
+* `SearchgetServerInfo` - Get server info
 
 ### Wallets
 

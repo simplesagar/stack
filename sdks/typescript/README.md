@@ -31,7 +31,8 @@ yarn add @formance/formance-sdk
 <!-- Start SDK Example Usage -->
 ```typescript
 import {
-  GetServerInfoResponse
+  AddScopeToClientRequest,
+  AddScopeToClientResponse
 } from "@formance/formance-sdk/dist/sdk/models/operations";
 
 import { AxiosError } from "axios";
@@ -42,7 +43,12 @@ const sdk = new SDK({
   },
 });
 
-sdk.getServerInfo().then((res: GetServerInfoResponse | AxiosError) => {
+const req: AddScopeToClientRequest = {
+  clientId: "unde",
+  scopeId: "deserunt",
+};
+
+sdk.auth.addScopeToClient(req).then((res: AddScopeToClientResponse | AxiosError) => {
    // handle response
 });
 ```
@@ -51,11 +57,6 @@ sdk.getServerInfo().then((res: GetServerInfoResponse | AxiosError) => {
 <!-- Start SDK Available Operations -->
 ## SDK Available Operations
 
-### SDK SDK
-
-* `getServerInfo` - Get server info
-* `paymentsgetServerInfo` - Get server info
-* `searchgetServerInfo` - Get server info
 
 ### auth
 
@@ -69,6 +70,7 @@ sdk.getServerInfo().then((res: GetServerInfoResponse | AxiosError) => {
 * `deleteScopeFromClient` - Delete scope from client
 * `deleteSecret` - Delete a secret from a client
 * `deleteTransientScope` - Delete a transient scope from a scope
+* `getServerInfo` - Get server info
 * `listClients` - List clients
 * `listScopes` - List scopes
 * `listUsers` - List users
@@ -127,6 +129,7 @@ sdk.getServerInfo().then((res: GetServerInfoResponse | AxiosError) => {
 * `listConnectorTasks` - List tasks from a connector
 * `listConnectorsTransfers` - List transfers and their statuses
 * `listPayments` - List payments
+* `paymentsgetServerInfo` - Get server info
 * `paymentslistAccounts` - List accounts
 * `readConnectorConfig` - Read the config of a connector
 * `resetConnector` - Reset a connector
@@ -136,6 +139,7 @@ sdk.getServerInfo().then((res: GetServerInfoResponse | AxiosError) => {
 ### search
 
 * `search` - Search
+* `searchgetServerInfo` - Get server info
 
 ### wallets
 

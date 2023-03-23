@@ -40,6 +40,9 @@
       "get": {
         "summary": "Get server info",
         "operationId": "getServerInfo",
+        "tags": [
+          "Auth"
+        ],
         "responses": {
           "200": {
             "description": "Server information",
@@ -2133,6 +2136,9 @@
       "get": {
         "summary": "Get server info",
         "operationId": "paymentsgetServerInfo",
+        "tags": [
+          "Payments"
+        ],
         "responses": {
           "200": {
             "$ref": "#/components/responses/ServerInfo"
@@ -2454,6 +2460,9 @@
       "get": {
         "summary": "Get server info",
         "operationId": "searchgetServerInfo",
+        "tags": [
+          "Search"
+        ],
         "responses": {
           "200": {
             "description": "Server information",

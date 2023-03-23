@@ -43,6 +43,7 @@ src/Models/Operations/DeleteSecretRequest.php
 src/Models/Operations/DeleteSecretResponse.php
 src/Models/Operations/DeleteTransientScopeRequest.php
 src/Models/Operations/DeleteTransientScopeResponse.php
+src/Models/Operations/GetServerInfoResponse.php
 src/Models/Operations/ListClientsResponse.php
 src/Models/Operations/ListScopesResponse.php
 src/Models/Operations/ListUsersResponse.php
@@ -133,6 +134,7 @@ src/Models/Operations/ListConnectorsTransfersRequest.php
 src/Models/Operations/ListConnectorsTransfersResponse.php
 src/Models/Operations/ListPaymentsRequest.php
 src/Models/Operations/ListPaymentsResponse.php
+src/Models/Operations/PaymentsgetServerInfoResponse.php
 src/Models/Operations/PaymentslistAccountsRequest.php
 src/Models/Operations/PaymentslistAccountsResponse.php
 src/Models/Operations/ReadConnectorConfigRequest.php
@@ -144,6 +146,7 @@ src/Models/Operations/UninstallConnectorResponse.php
 src/Models/Operations/UpdateMetadataRequest.php
 src/Models/Operations/UpdateMetadataResponse.php
 src/Models/Operations/SearchResponse.php
+src/Models/Operations/SearchgetServerInfoResponse.php
 src/Models/Operations/ConfirmHoldRequest.php
 src/Models/Operations/ConfirmHoldResponse.php
 src/Models/Operations/CreateBalanceRequest.php
@@ -186,9 +189,6 @@ src/Models/Operations/GetManyConfigsResponse.php
 src/Models/Operations/InsertConfigResponse.php
 src/Models/Operations/TestConfigRequest.php
 src/Models/Operations/TestConfigResponse.php
-src/Models/Operations/GetServerInfoResponse.php
-src/Models/Operations/PaymentsgetServerInfoResponse.php
-src/Models/Operations/SearchgetServerInfoResponse.php
 src/Models/Shared/CreateClientResponse.php
 src/Models/Shared/Client.php
 src/Models/Shared/ClientSecret.php
@@ -199,6 +199,7 @@ src/Models/Shared/CreateScopeRequest.php
 src/Models/Shared/CreateSecretResponse.php
 src/Models/Shared/Secret.php
 src/Models/Shared/CreateSecretRequest.php
+src/Models/Shared/ServerInfo.php
 src/Models/Shared/ListClientsResponse.php
 src/Models/Shared/ListScopesResponse.php
 src/Models/Shared/ListUsersResponse.php
@@ -304,7 +305,6 @@ src/Models/Shared/ActivityCreateTransaction.php
 src/Models/Shared/ActivityConfirmHold.php
 src/Models/Shared/GetWorkflowResponse.php
 src/Models/Shared/ListWorkflowsResponse.php
-src/Models/Shared/ServerInfo.php
 src/Models/Shared/RunWorkflowResponse.php
 src/Models/Shared/StripeTransferRequest.php
 src/Models/Shared/TransferResponse.php

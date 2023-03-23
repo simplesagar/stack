@@ -28,6 +28,7 @@ pkg/models/operations/deletescope.go
 pkg/models/operations/deletescopefromclient.go
 pkg/models/operations/deletesecret.go
 pkg/models/operations/deletetransientscope.go
+pkg/models/operations/getserverinfo.go
 pkg/models/operations/listclients.go
 pkg/models/operations/listscopes.go
 pkg/models/operations/listusers.go
@@ -77,12 +78,14 @@ pkg/models/operations/listconfigsavailableconnectors.go
 pkg/models/operations/listconnectortasks.go
 pkg/models/operations/listconnectorstransfers.go
 pkg/models/operations/listpayments.go
+pkg/models/operations/paymentsgetserverinfo.go
 pkg/models/operations/paymentslistaccounts.go
 pkg/models/operations/readconnectorconfig.go
 pkg/models/operations/resetconnector.go
 pkg/models/operations/uninstallconnector.go
 pkg/models/operations/updatemetadata.go
 pkg/models/operations/search.go
+pkg/models/operations/searchgetserverinfo.go
 pkg/models/operations/confirmhold.go
 pkg/models/operations/createbalance.go
 pkg/models/operations/createwallet.go
@@ -105,9 +108,6 @@ pkg/models/operations/deleteconfig.go
 pkg/models/operations/getmanyconfigs.go
 pkg/models/operations/insertconfig.go
 pkg/models/operations/testconfig.go
-pkg/models/operations/getserverinfo.go
-pkg/models/operations/paymentsgetserverinfo.go
-pkg/models/operations/searchgetserverinfo.go
 pkg/models/shared/createclientresponse.go
 pkg/models/shared/client.go
 pkg/models/shared/clientsecret.go
@@ -118,6 +118,7 @@ pkg/models/shared/createscoperequest.go
 pkg/models/shared/createsecretresponse.go
 pkg/models/shared/secret.go
 pkg/models/shared/createsecretrequest.go
+pkg/models/shared/serverinfo.go
 pkg/models/shared/listclientsresponse.go
 pkg/models/shared/listscopesresponse.go
 pkg/models/shared/listusersresponse.go
@@ -213,7 +214,6 @@ pkg/models/shared/activitycreatetransaction.go
 pkg/models/shared/activityconfirmhold.go
 pkg/models/shared/getworkflowresponse.go
 pkg/models/shared/listworkflowsresponse.go
-pkg/models/shared/serverinfo.go
 pkg/models/shared/runworkflowresponse.go
 pkg/models/shared/stripetransferrequest.go
 pkg/models/shared/transferresponse.go

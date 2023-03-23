@@ -31,6 +31,7 @@ src/sdk/models/operations/deletescope.ts
 src/sdk/models/operations/deletescopefromclient.ts
 src/sdk/models/operations/deletesecret.ts
 src/sdk/models/operations/deletetransientscope.ts
+src/sdk/models/operations/getserverinfo.ts
 src/sdk/models/operations/listclients.ts
 src/sdk/models/operations/listscopes.ts
 src/sdk/models/operations/listusers.ts
@@ -80,12 +81,14 @@ src/sdk/models/operations/listconfigsavailableconnectors.ts
 src/sdk/models/operations/listconnectortasks.ts
 src/sdk/models/operations/listconnectorstransfers.ts
 src/sdk/models/operations/listpayments.ts
+src/sdk/models/operations/paymentsgetserverinfo.ts
 src/sdk/models/operations/paymentslistaccounts.ts
 src/sdk/models/operations/readconnectorconfig.ts
 src/sdk/models/operations/resetconnector.ts
 src/sdk/models/operations/uninstallconnector.ts
 src/sdk/models/operations/updatemetadata.ts
 src/sdk/models/operations/search.ts
+src/sdk/models/operations/searchgetserverinfo.ts
 src/sdk/models/operations/confirmhold.ts
 src/sdk/models/operations/createbalance.ts
 src/sdk/models/operations/createwallet.ts
@@ -108,9 +111,6 @@ src/sdk/models/operations/deleteconfig.ts
 src/sdk/models/operations/getmanyconfigs.ts
 src/sdk/models/operations/insertconfig.ts
 src/sdk/models/operations/testconfig.ts
-src/sdk/models/operations/getserverinfo.ts
-src/sdk/models/operations/paymentsgetserverinfo.ts
-src/sdk/models/operations/searchgetserverinfo.ts
 src/sdk/models/operations/index.ts
 src/sdk/models/shared/createclientresponse.ts
 src/sdk/models/shared/client.ts
@@ -122,6 +122,7 @@ src/sdk/models/shared/createscoperequest.ts
 src/sdk/models/shared/createsecretresponse.ts
 src/sdk/models/shared/secret.ts
 src/sdk/models/shared/createsecretrequest.ts
+src/sdk/models/shared/serverinfo.ts
 src/sdk/models/shared/listclientsresponse.ts
 src/sdk/models/shared/listscopesresponse.ts
 src/sdk/models/shared/listusersresponse.ts
@@ -217,7 +218,6 @@ src/sdk/models/shared/activitycreatetransaction.ts
 src/sdk/models/shared/activityconfirmhold.ts
 src/sdk/models/shared/getworkflowresponse.ts
 src/sdk/models/shared/listworkflowsresponse.ts
-src/sdk/models/shared/serverinfo.ts
 src/sdk/models/shared/runworkflowresponse.ts
 src/sdk/models/shared/stripetransferrequest.ts
 src/sdk/models/shared/transferresponse.ts

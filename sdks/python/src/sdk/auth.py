@@ -237,6 +237,27 @@ class Auth:
 
         return res
 
+    def get_server_info(self) -> operations.GetServerInfoResponse:
+        r"""Get server info"""
+        base_url = self._server_url
+        
+        url = base_url.removesuffix('/') + '/api/auth/_info'
+        
+        
+        client = self._security_client
+        
+        http_res = client.request('GET', url)
+        content_type = http_res.headers.get('Content-Type')
+
+        res = operations.GetServerInfoResponse(status_code=http_res.status_code, content_type=content_type, raw_response=http_res)
+        
+        if http_res.status_code == 200:
+            if utils.match_content_type(content_type, 'application/json'):
+                out = utils.unmarshal_json(http_res.text, Optional[shared.ServerInfo])
+                res.server_info = out
+
+        return res
+
     def list_clients(self) -> operations.ListClientsResponse:
         r"""List clients"""
         base_url = self._server_url

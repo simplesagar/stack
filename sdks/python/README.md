@@ -31,10 +31,15 @@ s = sdk.SDK(
     ),
 )
 
-    
-res = s.get_server_info()
 
-if res.server_info is not None:
+req = operations.AddScopeToClientRequest(
+    client_id="unde",
+    scope_id="deserunt",
+)
+    
+res = s.auth.add_scope_to_client(req)
+
+if res.status_code == 200:
     # handle response
 ```
 <!-- End SDK Example Usage -->
@@ -42,11 +47,6 @@ if res.server_info is not None:
 <!-- Start SDK Available Operations -->
 ## SDK Available Operations
 
-### SDK SDK
-
-* `get_server_info` - Get server info
-* `paymentsget_server_info` - Get server info
-* `searchget_server_info` - Get server info
 
 ### auth
 
@@ -60,6 +60,7 @@ if res.server_info is not None:
 * `delete_scope_from_client` - Delete scope from client
 * `delete_secret` - Delete a secret from a client
 * `delete_transient_scope` - Delete a transient scope from a scope
+* `get_server_info` - Get server info
 * `list_clients` - List clients
 * `list_scopes` - List scopes
 * `list_users` - List users
@@ -118,6 +119,7 @@ if res.server_info is not None:
 * `list_connector_tasks` - List tasks from a connector
 * `list_connectors_transfers` - List transfers and their statuses
 * `list_payments` - List payments
+* `paymentsget_server_info` - Get server info
 * `paymentslist_accounts` - List accounts
 * `read_connector_config` - Read the config of a connector
 * `reset_connector` - Reset a connector
@@ -127,6 +129,7 @@ if res.server_info is not None:
 ### search
 
 * `search` - Search
+* `searchget_server_info` - Get server info
 
 ### wallets
 

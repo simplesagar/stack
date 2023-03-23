@@ -265,6 +265,27 @@ class Payments:
 
         return res
 
+    def paymentsget_server_info(self) -> operations.PaymentsgetServerInfoResponse:
+        r"""Get server info"""
+        base_url = self._server_url
+        
+        url = base_url.removesuffix('/') + '/api/payments/_info'
+        
+        
+        client = self._security_client
+        
+        http_res = client.request('GET', url)
+        content_type = http_res.headers.get('Content-Type')
+
+        res = operations.PaymentsgetServerInfoResponse(status_code=http_res.status_code, content_type=content_type, raw_response=http_res)
+        
+        if http_res.status_code == 200:
+            if utils.match_content_type(content_type, 'application/json'):
+                out = utils.unmarshal_json(http_res.text, Optional[shared.ServerInfo])
+                res.server_info = out
+
+        return res
+
     def paymentslist_accounts(self, request: operations.PaymentslistAccountsRequest) -> operations.PaymentslistAccountsResponse:
         r"""List accounts"""
         base_url = self._server_url

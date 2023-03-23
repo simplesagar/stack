@@ -23,6 +23,7 @@ src/sdk/models/operations/deletescope.py
 src/sdk/models/operations/deletescopefromclient.py
 src/sdk/models/operations/deletesecret.py
 src/sdk/models/operations/deletetransientscope.py
+src/sdk/models/operations/getserverinfo.py
 src/sdk/models/operations/listclients.py
 src/sdk/models/operations/listscopes.py
 src/sdk/models/operations/listusers.py
@@ -72,12 +73,14 @@ src/sdk/models/operations/listconfigsavailableconnectors.py
 src/sdk/models/operations/listconnectortasks.py
 src/sdk/models/operations/listconnectorstransfers.py
 src/sdk/models/operations/listpayments.py
+src/sdk/models/operations/paymentsgetserverinfo.py
 src/sdk/models/operations/paymentslistaccounts.py
 src/sdk/models/operations/readconnectorconfig.py
 src/sdk/models/operations/resetconnector.py
 src/sdk/models/operations/uninstallconnector.py
 src/sdk/models/operations/updatemetadata.py
 src/sdk/models/operations/search.py
+src/sdk/models/operations/searchgetserverinfo.py
 src/sdk/models/operations/confirmhold.py
 src/sdk/models/operations/createbalance.py
 src/sdk/models/operations/createwallet.py
@@ -100,9 +103,6 @@ src/sdk/models/operations/deleteconfig.py
 src/sdk/models/operations/getmanyconfigs.py
 src/sdk/models/operations/insertconfig.py
 src/sdk/models/operations/testconfig.py
-src/sdk/models/operations/getserverinfo.py
-src/sdk/models/operations/paymentsgetserverinfo.py
-src/sdk/models/operations/searchgetserverinfo.py
 src/sdk/models/operations/__init__.py
 src/sdk/models/shared/createclientresponse.py
 src/sdk/models/shared/client.py
@@ -114,6 +114,7 @@ src/sdk/models/shared/createscoperequest.py
 src/sdk/models/shared/createsecretresponse.py
 src/sdk/models/shared/secret.py
 src/sdk/models/shared/createsecretrequest.py
+src/sdk/models/shared/serverinfo.py
 src/sdk/models/shared/listclientsresponse.py
 src/sdk/models/shared/listscopesresponse.py
 src/sdk/models/shared/listusersresponse.py
@@ -209,7 +210,6 @@ src/sdk/models/shared/activitycreatetransaction.py
 src/sdk/models/shared/activityconfirmhold.py
 src/sdk/models/shared/getworkflowresponse.py
 src/sdk/models/shared/listworkflowsresponse.py
-src/sdk/models/shared/serverinfo.py
 src/sdk/models/shared/runworkflowresponse.py
 src/sdk/models/shared/stripetransferrequest.py
 src/sdk/models/shared/transferresponse.py

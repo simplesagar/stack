@@ -28,7 +28,8 @@ package hello.world;
 
 import com.formance.formance_sdk.SDK;
 import com.formance.formance_sdk.models.shared.Security;
-import com.formance.formance_sdk.models.operations.GetServerInfoResponse;
+import com.formance.formance_sdk.models.operations.AddScopeToClientRequest;
+import com.formance.formance_sdk.models.operations.AddScopeToClientResponse;
 
 public class Application {
     public static void main(String[] args) {
@@ -39,9 +40,14 @@ public class Application {
                 }})
                 .build();
 
-            GetServerInfoResponse res = sdk.getServerInfo();
+            AddScopeToClientRequest req = new AddScopeToClientRequest() {{
+                clientId = "unde";
+                scopeId = "deserunt";
+            }}            
 
-            if (res.serverInfo.isPresent()) {
+            AddScopeToClientResponse res = sdk.auth.addScopeToClient(req);
+
+            if (res.statusCode == 200) {
                 // handle response
             }
         } catch (Exception e) {
@@ -53,11 +59,6 @@ public class Application {
 <!-- Start SDK Available Operations -->
 ## SDK Available Operations
 
-### SDK SDK
-
-* `getServerInfo` - Get server info
-* `paymentsgetServerInfo` - Get server info
-* `searchgetServerInfo` - Get server info
 
 ### auth
 
@@ -71,6 +72,7 @@ public class Application {
 * `deleteScopeFromClient` - Delete scope from client
 * `deleteSecret` - Delete a secret from a client
 * `deleteTransientScope` - Delete a transient scope from a scope
+* `getServerInfo` - Get server info
 * `listClients` - List clients
 * `listScopes` - List scopes
 * `listUsers` - List users
@@ -129,6 +131,7 @@ public class Application {
 * `listConnectorTasks` - List tasks from a connector
 * `listConnectorsTransfers` - List transfers and their statuses
 * `listPayments` - List payments
+* `paymentsgetServerInfo` - Get server info
 * `paymentslistAccounts` - List accounts
 * `readConnectorConfig` - Read the config of a connector
 * `resetConnector` - Reset a connector
@@ -138,6 +141,7 @@ public class Application {
 ### search
 
 * `search` - Search
+* `searchgetServerInfo` - Get server info
 
 ### wallets
 

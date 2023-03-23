@@ -54,6 +54,7 @@ lib/src/main/java/com/formance/formance_sdk/models/operations/DeleteSecretReques
 lib/src/main/java/com/formance/formance_sdk/models/operations/DeleteSecretResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/DeleteTransientScopeRequest.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/DeleteTransientScopeResponse.java
+lib/src/main/java/com/formance/formance_sdk/models/operations/GetServerInfoResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/ListClientsResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/ListScopesResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/ListUsersResponse.java
@@ -144,6 +145,7 @@ lib/src/main/java/com/formance/formance_sdk/models/operations/ListConnectorsTran
 lib/src/main/java/com/formance/formance_sdk/models/operations/ListConnectorsTransfersResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/ListPaymentsRequest.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/ListPaymentsResponse.java
+lib/src/main/java/com/formance/formance_sdk/models/operations/PaymentsgetServerInfoResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/PaymentslistAccountsRequest.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/PaymentslistAccountsResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/ReadConnectorConfigRequest.java
@@ -155,6 +157,7 @@ lib/src/main/java/com/formance/formance_sdk/models/operations/UninstallConnector
 lib/src/main/java/com/formance/formance_sdk/models/operations/UpdateMetadataRequest.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/UpdateMetadataResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/SearchResponse.java
+lib/src/main/java/com/formance/formance_sdk/models/operations/SearchgetServerInfoResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/ConfirmHoldRequest.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/ConfirmHoldResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/CreateBalanceRequest.java
@@ -197,9 +200,6 @@ lib/src/main/java/com/formance/formance_sdk/models/operations/GetManyConfigsResp
 lib/src/main/java/com/formance/formance_sdk/models/operations/InsertConfigResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/TestConfigRequest.java
 lib/src/main/java/com/formance/formance_sdk/models/operations/TestConfigResponse.java
-lib/src/main/java/com/formance/formance_sdk/models/operations/GetServerInfoResponse.java
-lib/src/main/java/com/formance/formance_sdk/models/operations/PaymentsgetServerInfoResponse.java
-lib/src/main/java/com/formance/formance_sdk/models/operations/SearchgetServerInfoResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/CreateClientResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/Client.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/ClientSecret.java
@@ -210,6 +210,7 @@ lib/src/main/java/com/formance/formance_sdk/models/shared/CreateScopeRequest.jav
 lib/src/main/java/com/formance/formance_sdk/models/shared/CreateSecretResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/Secret.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/CreateSecretRequest.java
+lib/src/main/java/com/formance/formance_sdk/models/shared/ServerInfo.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/ListClientsResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/ListScopesResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/ListUsersResponse.java
@@ -315,7 +316,6 @@ lib/src/main/java/com/formance/formance_sdk/models/shared/ActivityCreateTransact
 lib/src/main/java/com/formance/formance_sdk/models/shared/ActivityConfirmHold.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/GetWorkflowResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/ListWorkflowsResponse.java
-lib/src/main/java/com/formance/formance_sdk/models/shared/ServerInfo.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/RunWorkflowResponse.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/StripeTransferRequest.java
 lib/src/main/java/com/formance/formance_sdk/models/shared/TransferResponse.java

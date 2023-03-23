@@ -29,11 +29,6 @@ composer require "formance/stack"
 <!-- Start SDK Available Operations -->
 ## SDK Available Operations
 
-### SDK SDK
-
-* `getServerInfo` - Get server info
-* `paymentsgetServerInfo` - Get server info
-* `searchgetServerInfo` - Get server info
 
 ### auth
 
@@ -47,6 +42,7 @@ composer require "formance/stack"
 * `deleteScopeFromClient` - Delete scope from client
 * `deleteSecret` - Delete a secret from a client
 * `deleteTransientScope` - Delete a transient scope from a scope
+* `getServerInfo` - Get server info
 * `listClients` - List clients
 * `listScopes` - List scopes
 * `listUsers` - List users
@@ -105,6 +101,7 @@ composer require "formance/stack"
 * `listConnectorTasks` - List tasks from a connector
 * `listConnectorsTransfers` - List transfers and their statuses
 * `listPayments` - List payments
+* `paymentsgetServerInfo` - Get server info
 * `paymentslistAccounts` - List accounts
 * `readConnectorConfig` - Read the config of a connector
 * `resetConnector` - Reset a connector
@@ -114,6 +111,7 @@ composer require "formance/stack"
 ### search
 
 * `search` - Search
+* `searchgetServerInfo` - Get server info
 
 ### wallets
 
