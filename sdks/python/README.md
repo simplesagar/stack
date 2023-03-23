@@ -48,13 +48,6 @@ if res.server_info is not None:
 * `paymentsget_server_info` - Get server info
 * `searchget_server_info` - Get server info
 
-### accounts
-
-* `add_metadata_to_account` - Add metadata to an account
-* `count_accounts` - Count the accounts from a ledger
-* `get_account` - Get account by its address
-* `list_accounts` - List accounts from a ledger
-
 ### auth
 
 * `add_scope_to_client` - Add scope to client
@@ -75,23 +68,6 @@ if res.server_info is not None:
 * `read_user` - Read user
 * `update_client` - Update client
 * `update_scope` - Update scope
-
-### balances
-
-* `get_balances` - Get the balances from a ledger's account
-* `get_balances_aggregated` - Get the aggregated balances from selected accounts
-
-### clients
-
-* `add_scope_to_client` - Add scope to client
-* `create_client` - Create client
-* `create_secret` - Add a secret to a client
-* `delete_client` - Delete client
-* `delete_scope_from_client` - Delete scope from client
-* `delete_secret` - Delete a secret from a client
-* `list_clients` - List clients
-* `read_client` - Read client
-* `update_client` - Update client
 
 ### ledger
 
@@ -114,15 +90,6 @@ if res.server_info is not None:
 * `read_stats` - Get statistics from a ledger
 * `revert_transaction` - Revert a ledger transaction by its ID
 * `run_script` - Execute a Numscript
-* `update_mapping` - Update the mapping of a ledger
-
-### logs
-
-* `list_logs` - List the logs from a ledger
-
-### mapping
-
-* `get_mapping` - Get the mapping of a ledger
 * `update_mapping` - Update the mapping of a ledger
 
 ### orchestration
@@ -157,46 +124,9 @@ if res.server_info is not None:
 * `uninstall_connector` - Uninstall a connector
 * `update_metadata` - Update metadata
 
-### scopes
-
-* `add_transient_scope` - Add a transient scope to a scope
-* `create_scope` - Create scope
-* `delete_scope` - Delete scope
-* `delete_transient_scope` - Delete a transient scope from a scope
-* `list_scopes` - List scopes
-* `read_scope` - Read scope
-* `update_scope` - Update scope
-
-### script
-
-* `run_script` - Execute a Numscript
-
 ### search
 
 * `search` - Search
-
-### server
-
-* `get_info` - Show server information
-
-### stats
-
-* `read_stats` - Get statistics from a ledger
-
-### transactions
-
-* `create_transactions` - Create a new batch of transactions to a ledger
-* `add_metadata_on_transaction` - Set the metadata of a transaction by its ID
-* `count_transactions` - Count the transactions from a ledger
-* `create_transaction` - Create a new transaction to a ledger
-* `get_transaction` - Get transaction from a ledger by its ID
-* `list_transactions` - List transactions from a ledger
-* `revert_transaction` - Revert a ledger transaction by its ID
-
-### users
-
-* `list_users` - List users
-* `read_user` - Read user
 
 ### wallets
 

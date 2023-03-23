@@ -3,6 +3,7 @@ generation:
   telemetryEnabled: false
   sdkClassName: SDK
   sdkFlattening: true
+  singleTagPerOp: true
 php:
   version: 0.0.1
   namespace: formance\stack

@@ -42,22 +42,11 @@ func String(s string) *string { return &s }
 // and standard method from web, mobile and desktop applications.
 // <SecurityDefinitions />
 type Formance struct {
-	Accounts      *accounts
 	Auth          *auth
-	Balances      *balances
-	Clients       *clients
 	Ledger        *ledger
-	Logs          *logs
-	Mapping       *mapping
 	Orchestration *orchestration
 	Payments      *payments
-	Scopes        *scopes
-	Script        *script
 	Search        *search
-	Server        *server
-	Stats         *stats
-	Transactions  *transactions
-	Users         *users
 	Wallets       *wallets
 	Webhooks      *webhooks
 
@@ -110,7 +99,7 @@ func New(opts ...SDKOption) *Formance {
 	sdk := &Formance{
 		_language:   "go",
 		_sdkVersion: "",
-		_genVersion: "2.12.10",
+		_genVersion: "2.13.1",
 	}
 	for _, opt := range opts {
 		opt(sdk)
@@ -132,15 +121,6 @@ func New(opts ...SDKOption) *Formance {
 		sdk._serverURL = ServerList[0]
 	}
 
-	sdk.Accounts = newAccounts(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
-
 	sdk.Auth = newAuth(
 		sdk._defaultClient,
 		sdk._securityClient,
@@ -150,43 +130,7 @@ func New(opts ...SDKOption) *Formance {
 		sdk._genVersion,
 	)
 
-	sdk.Balances = newBalances(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
-
-	sdk.Clients = newClients(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
-
 	sdk.Ledger = newLedger(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
-
-	sdk.Logs = newLogs(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
-
-	sdk.Mapping = newMapping(
 		sdk._defaultClient,
 		sdk._securityClient,
 		sdk._serverURL,
@@ -213,61 +157,7 @@ func New(opts ...SDKOption) *Formance {
 		sdk._genVersion,
 	)
 
-	sdk.Scopes = newScopes(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
-
-	sdk.Script = newScript(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
-
 	sdk.Search = newSearch(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
-
-	sdk.Server = newServer(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
-
-	sdk.Stats = newStats(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
-
-	sdk.Transactions = newTransactions(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
-
-	sdk.Users = newUsers(
 		sdk._defaultClient,
 		sdk._securityClient,
 		sdk._serverURL,

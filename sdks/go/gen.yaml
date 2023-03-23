@@ -3,6 +3,7 @@ generation:
   telemetryEnabled: false
   sdkClassName: Formance
   sdkFlattening: true
+  singleTagPerOp: true
 go:
   version: ""
   author: Formance

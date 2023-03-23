@@ -57,13 +57,6 @@ sdk.getServerInfo().then((res: GetServerInfoResponse | AxiosError) => {
 * `paymentsgetServerInfo` - Get server info
 * `searchgetServerInfo` - Get server info
 
-### accounts
-
-* `addMetadataToAccount` - Add metadata to an account
-* `countAccounts` - Count the accounts from a ledger
-* `getAccount` - Get account by its address
-* `listAccounts` - List accounts from a ledger
-
 ### auth
 
 * `addScopeToClient` - Add scope to client
@@ -84,23 +77,6 @@ sdk.getServerInfo().then((res: GetServerInfoResponse | AxiosError) => {
 * `readUser` - Read user
 * `updateClient` - Update client
 * `updateScope` - Update scope
-
-### balances
-
-* `getBalances` - Get the balances from a ledger's account
-* `getBalancesAggregated` - Get the aggregated balances from selected accounts
-
-### clients
-
-* `addScopeToClient` - Add scope to client
-* `createClient` - Create client
-* `createSecret` - Add a secret to a client
-* `deleteClient` - Delete client
-* `deleteScopeFromClient` - Delete scope from client
-* `deleteSecret` - Delete a secret from a client
-* `listClients` - List clients
-* `readClient` - Read client
-* `updateClient` - Update client
 
 ### ledger
 
@@ -123,15 +99,6 @@ sdk.getServerInfo().then((res: GetServerInfoResponse | AxiosError) => {
 * `readStats` - Get statistics from a ledger
 * `revertTransaction` - Revert a ledger transaction by its ID
 * `runScript` - Execute a Numscript
-* `updateMapping` - Update the mapping of a ledger
-
-### logs
-
-* `listLogs` - List the logs from a ledger
-
-### mapping
-
-* `getMapping` - Get the mapping of a ledger
 * `updateMapping` - Update the mapping of a ledger
 
 ### orchestration
@@ -166,46 +133,9 @@ sdk.getServerInfo().then((res: GetServerInfoResponse | AxiosError) => {
 * `uninstallConnector` - Uninstall a connector
 * `updateMetadata` - Update metadata
 
-### scopes
-
-* `addTransientScope` - Add a transient scope to a scope
-* `createScope` - Create scope
-* `deleteScope` - Delete scope
-* `deleteTransientScope` - Delete a transient scope from a scope
-* `listScopes` - List scopes
-* `readScope` - Read scope
-* `updateScope` - Update scope
-
-### script
-
-* `runScript` - Execute a Numscript
-
 ### search
 
 * `search` - Search
-
-### server
-
-* `getInfo` - Show server information
-
-### stats
-
-* `readStats` - Get statistics from a ledger
-
-### transactions
-
-* `createTransactions` - Create a new batch of transactions to a ledger
-* `addMetadataOnTransaction` - Set the metadata of a transaction by its ID
-* `countTransactions` - Count the transactions from a ledger
-* `createTransaction` - Create a new transaction to a ledger
-* `getTransaction` - Get transaction from a ledger by its ID
-* `listTransactions` - List transactions from a ledger
-* `revertTransaction` - Revert a ledger transaction by its ID
-
-### users
-
-* `listUsers` - List users
-* `readUser` - Read user
 
 ### wallets
 

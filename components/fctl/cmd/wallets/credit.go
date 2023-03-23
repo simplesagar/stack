@@ -75,6 +75,7 @@ func NewCreditWalletCommand() *cobra.Command {
 				return err
 			}
 
+			shared.Wallets
 			sources := make([]formance.Subject, 0)
 			for _, sourceStr := range fctl.GetStringSlice(cmd, sourceFlag) {
 				source, err := internal.ParseSubject(sourceStr, cmd, client)

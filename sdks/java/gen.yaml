@@ -3,6 +3,7 @@ generation:
   telemetryEnabled: false
   sdkClassName: SDK
   sdkFlattening: true
+  singleTagPerOp: true
 java:
   version: 0.0.1
   artifactID: formance-sdk

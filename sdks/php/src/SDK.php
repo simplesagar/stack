@@ -35,37 +35,15 @@ class SDK
 		'https://{organization}.sandbox.formance.cloud',
 	];
   	
-	public Accounts $accounts;
-	
 	public Auth $auth;
 	
-	public Balances $balances;
-	
-	public Clients $clients;
-	
 	public Ledger $ledger;
-	
-	public Logs $logs;
-	
-	public Mapping $mapping;
 	
 	public Orchestration $orchestration;
 	
 	public Payments $payments;
 	
-	public Scopes $scopes;
-	
-	public Script $script;
-	
 	public Search $search;
-	
-	public Server $server;
-	
-	public Stats $stats;
-	
-	public Transactions $transactions;
-	
-	public Users $users;
 	
 	public Wallets $wallets;
 	
@@ -78,7 +56,7 @@ class SDK
 	private string $_serverUrl;
 	private string $_language = 'php';
 	private string $_sdkVersion = '0.0.1';
-	private string $_genVersion = '2.12.10';
+	private string $_genVersion = '2.13.1';
 
 	/**
 	 * Returns a new instance of the SDK builder used to configure and create the SDK instance.
@@ -124,15 +102,6 @@ class SDK
 			$this->_serverUrl = $this::SERVERS[0];
 		}
 		
-		$this->accounts = new Accounts(
-			$this->_defaultClient,
-			$this->_securityClient,
-			$this->_serverUrl,
-			$this->_language,
-			$this->_sdkVersion,
-			$this->_genVersion
-		);
-		
 		$this->auth = new Auth(
 			$this->_defaultClient,
 			$this->_securityClient,
@@ -142,43 +111,7 @@ class SDK
 			$this->_genVersion
 		);
 		
-		$this->balances = new Balances(
-			$this->_defaultClient,
-			$this->_securityClient,
-			$this->_serverUrl,
-			$this->_language,
-			$this->_sdkVersion,
-			$this->_genVersion
-		);
-		
-		$this->clients = new Clients(
-			$this->_defaultClient,
-			$this->_securityClient,
-			$this->_serverUrl,
-			$this->_language,
-			$this->_sdkVersion,
-			$this->_genVersion
-		);
-		
 		$this->ledger = new Ledger(
-			$this->_defaultClient,
-			$this->_securityClient,
-			$this->_serverUrl,
-			$this->_language,
-			$this->_sdkVersion,
-			$this->_genVersion
-		);
-		
-		$this->logs = new Logs(
-			$this->_defaultClient,
-			$this->_securityClient,
-			$this->_serverUrl,
-			$this->_language,
-			$this->_sdkVersion,
-			$this->_genVersion
-		);
-		
-		$this->mapping = new Mapping(
 			$this->_defaultClient,
 			$this->_securityClient,
 			$this->_serverUrl,
@@ -205,61 +138,7 @@ class SDK
 			$this->_genVersion
 		);
 		
-		$this->scopes = new Scopes(
-			$this->_defaultClient,
-			$this->_securityClient,
-			$this->_serverUrl,
-			$this->_language,
-			$this->_sdkVersion,
-			$this->_genVersion
-		);
-		
-		$this->script = new Script(
-			$this->_defaultClient,
-			$this->_securityClient,
-			$this->_serverUrl,
-			$this->_language,
-			$this->_sdkVersion,
-			$this->_genVersion
-		);
-		
 		$this->search = new Search(
-			$this->_defaultClient,
-			$this->_securityClient,
-			$this->_serverUrl,
-			$this->_language,
-			$this->_sdkVersion,
-			$this->_genVersion
-		);
-		
-		$this->server = new Server(
-			$this->_defaultClient,
-			$this->_securityClient,
-			$this->_serverUrl,
-			$this->_language,
-			$this->_sdkVersion,
-			$this->_genVersion
-		);
-		
-		$this->stats = new Stats(
-			$this->_defaultClient,
-			$this->_securityClient,
-			$this->_serverUrl,
-			$this->_language,
-			$this->_sdkVersion,
-			$this->_genVersion
-		);
-		
-		$this->transactions = new Transactions(
-			$this->_defaultClient,
-			$this->_securityClient,
-			$this->_serverUrl,
-			$this->_language,
-			$this->_sdkVersion,
-			$this->_genVersion
-		);
-		
-		$this->users = new Users(
 			$this->_defaultClient,
 			$this->_securityClient,
 			$this->_serverUrl,

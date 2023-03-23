@@ -2,22 +2,11 @@
 
 import requests as requests_http
 from . import utils
-from .accounts import Accounts
 from .auth import Auth
-from .balances import Balances
-from .clients import Clients
 from .ledger import Ledger
-from .logs import Logs
-from .mapping import Mapping
 from .orchestration import Orchestration
 from .payments import Payments
-from .scopes import Scopes
-from .script import Script
 from .search import Search
-from .server import Server
-from .stats import Stats
-from .transactions import Transactions
-from .users import Users
 from .wallets import Wallets
 from .webhooks import Webhooks
 from sdk.models import operations, shared
@@ -45,22 +34,11 @@ class SDK:
     <SecurityDefinitions />
     
     """
-    accounts: Accounts
     auth: Auth
-    balances: Balances
-    clients: Clients
     ledger: Ledger
-    logs: Logs
-    mapping: Mapping
     orchestration: Orchestration
     payments: Payments
-    scopes: Scopes
-    script: Script
     search: Search
-    server: Server
-    stats: Stats
-    transactions: Transactions
-    users: Users
     wallets: Wallets
     webhooks: Webhooks
 
@@ -69,7 +47,7 @@ class SDK:
     _server_url: str = SERVERS[0]
     _language: str = "python"
     _sdk_version: str = "0.0.1"
-    _gen_version: str = "2.12.10"
+    _gen_version: str = "2.13.1"
 
     def __init__(self,
                  security: shared.Security = None,
@@ -106,15 +84,6 @@ class SDK:
         self._init_sdks()
     
     def _init_sdks(self):
-        self.accounts = Accounts(
-            self._client,
-            self._security_client,
-            self._server_url,
-            self._language,
-            self._sdk_version,
-            self._gen_version
-        )
-        
         self.auth = Auth(
             self._client,
             self._security_client,
@@ -124,43 +93,7 @@ class SDK:
             self._gen_version
         )
         
-        self.balances = Balances(
-            self._client,
-            self._security_client,
-            self._server_url,
-            self._language,
-            self._sdk_version,
-            self._gen_version
-        )
-        
-        self.clients = Clients(
-            self._client,
-            self._security_client,
-            self._server_url,
-            self._language,
-            self._sdk_version,
-            self._gen_version
-        )
-        
         self.ledger = Ledger(
-            self._client,
-            self._security_client,
-            self._server_url,
-            self._language,
-            self._sdk_version,
-            self._gen_version
-        )
-        
-        self.logs = Logs(
-            self._client,
-            self._security_client,
-            self._server_url,
-            self._language,
-            self._sdk_version,
-            self._gen_version
-        )
-        
-        self.mapping = Mapping(
             self._client,
             self._security_client,
             self._server_url,
@@ -187,61 +120,7 @@ class SDK:
             self._gen_version
         )
         
-        self.scopes = Scopes(
-            self._client,
-            self._security_client,
-            self._server_url,
-            self._language,
-            self._sdk_version,
-            self._gen_version
-        )
-        
-        self.script = Script(
-            self._client,
-            self._security_client,
-            self._server_url,
-            self._language,
-            self._sdk_version,
-            self._gen_version
-        )
-        
         self.search = Search(
-            self._client,
-            self._security_client,
-            self._server_url,
-            self._language,
-            self._sdk_version,
-            self._gen_version
-        )
-        
-        self.server = Server(
-            self._client,
-            self._security_client,
-            self._server_url,
-            self._language,
-            self._sdk_version,
-            self._gen_version
-        )
-        
-        self.stats = Stats(
-            self._client,
-            self._security_client,
-            self._server_url,
-            self._language,
-            self._sdk_version,
-            self._gen_version
-        )
-        
-        self.transactions = Transactions(
-            self._client,
-            self._security_client,
-            self._server_url,
-            self._language,
-            self._sdk_version,
-            self._gen_version
-        )
-        
-        self.users = Users(
             self._client,
             self._security_client,
             self._server_url,

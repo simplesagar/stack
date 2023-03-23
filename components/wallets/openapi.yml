@@ -810,7 +810,7 @@ components:
         mapping:
           ACCOUNT: '#/components/schemas/LedgerAccountSubject'
           WALLET: '#/components/schemas/WalletSubject'
-      anyOf:
+      oneOf:
       - $ref: '#/components/schemas/LedgerAccountSubject'
       - $ref: '#/components/schemas/WalletSubject'
     CreditWalletRequest:

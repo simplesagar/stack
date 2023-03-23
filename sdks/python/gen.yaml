@@ -3,6 +3,7 @@ generation:
   telemetryEnabled: false
   sdkClassName: SDK
   sdkFlattening: true
+  singleTagPerOp: true
 python:
   version: 0.0.1
   author: Formance

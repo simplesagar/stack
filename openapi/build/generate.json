@@ -6734,7 +6734,7 @@
             "WALLET": "#/components/schemas/WalletSubject"
           }
         },
-        "anyOf": [
+        "oneOf": [
           {
             "$ref": "#/components/schemas/LedgerAccountSubject"
           },
