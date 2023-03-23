@@ -1,4 +1,4 @@
-name: Generate Go SDK
+name: Generate TS SDK
 
 on:
   workflow_dispatch: # Allows manual triggering of the workflow to generate SDK
@@ -17,9 +17,11 @@ jobs:
       speakeasy_version: latest
       openapi_doc_location: ./openapi/base.yaml
       languages: |-
-        - go: ./sdks/go
+        - typescript: ./sdks/typescript-node
+      # publish_typescript: true # Tells the generation action to generate artifacts for publishing to NPM
       mode: pr
       force: ${{ github.event.inputs.force }}
     secrets:
       speakeasy_api_key: ${{ secrets.SPEAKEASY_API_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      # npm_token: ${{ secrets.NPM_TOKEN }}
